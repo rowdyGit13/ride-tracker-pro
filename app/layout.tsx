@@ -20,8 +20,26 @@ const geistMono = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "Ride Tracker Pro",
-  description: "A simple app for rideshare drivers to track their earnings and expenses."
+  title: "Ride Tracker Pro | Maximize Your Rideshare Earnings",
+  description: "The complete solution for rideshare drivers to track earnings, expenses, and optimize performance.",
+  keywords: "rideshare, uber, lyft, driver app, earnings tracker, expense tracker, tax deductions",
+  authors: [{ name: "Ride Tracker Pro Team" }],
+  openGraph: {
+    title: "Ride Tracker Pro | Maximize Your Rideshare Earnings",
+    description: "The complete solution for rideshare drivers to track earnings, expenses, and optimize performance.",
+    url: "https://ridetrackerpro.com",
+    siteName: "Ride Tracker Pro",
+    images: [
+      {
+        url: "/og-image.jpg", // You'll need to create this image
+        width: 1200,
+        height: 630,
+        alt: "Ride Tracker Pro"
+      }
+    ],
+    locale: "en_US",
+    type: "website"
+  }
 };
 
 export default async function RootLayout({
@@ -29,8 +47,8 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  // Uncomment when you're ready to implement user profiles
   // const { userId } = await auth();
-
   // if (userId) {
   //   const profile = await getProfileByUserIdAction(userId);
   //   if (!profile.data) {
@@ -40,15 +58,30 @@ export default async function RootLayout({
 
   return (
     <ClerkProvider>
-      <html lang="en">
-        <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+      <html lang="en" suppressHydrationWarning>
+        <body className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen flex flex-col`}>
           <Providers
             attribute="class"
             defaultTheme="dark"
+            enableSystem
             disableTransitionOnChange
           >
             <Header />
-            {children}
+            <main className="flex-1">{children}</main>
+            <footer className="py-6 border-t border-border bg-muted/30">
+              <div className="container mx-auto px-4">
+                <div className="flex flex-col md:flex-row justify-between items-center">
+                  <div className="flex items-center space-x-2 mb-4 md:mb-0">
+                    <span className="text-sm text-muted-foreground">© {new Date().getFullYear()} Ride Tracker Pro. All rights reserved.</span>
+                  </div>
+                  <div className="flex space-x-6">
+                    <a href="#" className="text-sm text-muted-foreground hover:text-foreground">Privacy Policy</a>
+                    <a href="#" className="text-sm text-muted-foreground hover:text-foreground">Terms of Service</a>
+                    <a href="#" className="text-sm text-muted-foreground hover:text-foreground">Contact</a>
+                  </div>
+                </div>
+              </div>
+            </footer>
             <Toaster />
           </Providers>
         </body>
