@@ -31,7 +31,6 @@ export default [
     rules: {
       // Include rules from Next.js plugin
       ...nextPlugin.configs['core-web-vitals'].rules,
-      ...nextPlugin.configs['typescript'].rules,
       // Add any custom rules here
       'no-unused-vars': 'warn',
       '@typescript-eslint/no-unused-vars': 'warn',
@@ -39,9 +38,6 @@ export default [
     settings: {
       react: {
         version: 'detect',
-      },
-      next: {
-        rootDir: '.',
       },
     },
     ignores: [
