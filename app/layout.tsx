@@ -6,6 +6,7 @@ import { ClerkProvider } from "@clerk/nextjs";
 import { auth } from "@clerk/nextjs/server";
 import type { Metadata } from "next";
 import localFont from "next/font/local";
+import { Suspense } from "react";
 import "./globals.css";
 
 const geistSans = localFont({
@@ -66,7 +67,9 @@ export default async function RootLayout({
             enableSystem
             disableTransitionOnChange
           >
-            <Header />
+            <Suspense fallback={<div className="h-16 border-b border-border bg-background/95 backdrop-blur"></div>}>
+              <Header />
+            </Suspense>
             <main className="flex-1">{children}</main>
             <footer className="py-6 border-t border-border bg-muted/30">
               <div className="container mx-auto px-4">
@@ -82,7 +85,9 @@ export default async function RootLayout({
                 </div>
               </div>
             </footer>
-            <Toaster />
+            <Suspense fallback={null}>
+              <Toaster />
+            </Suspense>
           </Providers>
         </body>
       </html>
