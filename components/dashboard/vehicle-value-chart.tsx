@@ -29,7 +29,7 @@ export function VehicleValueChart({ vehicles, rides, expenses }: VehicleValueCha
       
       // Calculate total earnings for this vehicle
       const earnings = vehicleRides.reduce((sum, ride) => {
-        return sum + Number(ride.fareAmount) + Number(ride.tipAmount);
+        return sum + Number(ride.totalAmount);
       }, 0);
       
       // Get expenses for this vehicle
@@ -43,9 +43,21 @@ export function VehicleValueChart({ vehicles, rides, expenses }: VehicleValueCha
       // Calculate net profit
       const netProfit = earnings - expenseTotal;
       
-      // Calculate total miles
-      const totalMiles = vehicleRides.reduce((sum, ride) => {
-        return sum + Number(ride.distance || 0); // Changed from mileage to distance
+      // Calculate total hours and miles
+      const totalHoursOnline = vehicleRides.reduce((sum, ride) => {
+        return sum + Number(ride.timeOnline || 0);
+      }, 0);
+      
+      const totalHoursBooked = vehicleRides.reduce((sum, ride) => {
+        return sum + Number(ride.timeBooked || 0);
+      }, 0);
+      
+      const totalMilesOnline = vehicleRides.reduce((sum, ride) => {
+        return sum + Number(ride.distanceOnline || 0);
+      }, 0);
+      
+      const totalMilesBooked = vehicleRides.reduce((sum, ride) => {
+        return sum + Number(ride.distanceBooked || 0);
       }, 0);
 
       return {
@@ -53,11 +65,14 @@ export function VehicleValueChart({ vehicles, rides, expenses }: VehicleValueCha
         value: netProfit,
         earnings,
         expenses: expenseTotal,
-        rides: vehicleRides.length,
-        miles: totalMiles,
+        sessions: vehicleRides.length,
+        hoursOnline: totalHoursOnline,
+        hoursBooked: totalHoursBooked,
+        milesOnline: totalMilesOnline,
+        milesBooked: totalMilesBooked,
         id: vehicle.id
       };
-    }).filter(vehicle => vehicle.rides > 0); // Only include vehicles with rides
+    }).filter(vehicle => vehicle.sessions > 0); // Only include vehicles with sessions
   }, [vehicles, rides, expenses]);
 
   // Custom tooltip
@@ -70,8 +85,11 @@ export function VehicleValueChart({ vehicles, rides, expenses }: VehicleValueCha
           <p className="text-sm text-primary">Earnings: ${data.earnings.toFixed(2)}</p>
           <p className="text-sm text-destructive">Expenses: ${data.expenses.toFixed(2)}</p>
           <p className="text-sm font-semibold">Net Profit: ${data.value.toFixed(2)}</p>
-          <p className="text-sm text-muted-foreground">Rides: {data.rides}</p>
-          <p className="text-sm text-muted-foreground">Miles: {data.miles.toFixed(0)}</p>
+          <p className="text-sm text-muted-foreground">Sessions: {data.sessions}</p>
+          <p className="text-sm text-muted-foreground">Hours Online: {data.hoursOnline.toFixed(1)}</p>
+          <p className="text-sm text-muted-foreground">Hours Booked: {data.hoursBooked.toFixed(1)}</p>
+          <p className="text-sm text-muted-foreground">Miles Online: {data.milesOnline.toFixed(0)}</p>
+          <p className="text-sm text-muted-foreground">Miles Booked: {data.milesBooked.toFixed(0)}</p>
         </div>
       );
     }

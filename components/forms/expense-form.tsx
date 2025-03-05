@@ -142,7 +142,7 @@ export function ExpenseForm({ initialData, closeDialog }: ExpenseFormProps) {
       if (closeDialog) {
         closeDialog();
       } else {
-        router.push("/dashboard/expenses");
+        router.push("/forms");
       }
     } catch (error) {
       toast({

@@ -28,7 +28,7 @@ export const getRidesByUserId = async (userId: string): Promise<SelectRide[]> =>
   try {
     const rides = await db.query.rides.findMany({
       where: eq(ridesTable.userId, userId),
-      orderBy: [desc(ridesTable.startTime)]
+      orderBy: [desc(ridesTable.sessionDate)]
     });
     return rides;
   } catch (error) {
@@ -44,7 +44,7 @@ export const getRidesByVehicleId = async (vehicleId: string, userId: string): Pr
         eq(ridesTable.vehicleId, vehicleId),
         eq(ridesTable.userId, userId)
       ),
-      orderBy: [desc(ridesTable.startTime)]
+      orderBy: [desc(ridesTable.sessionDate)]
     });
     return rides;
   } catch (error) {

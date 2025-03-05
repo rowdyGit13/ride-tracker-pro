@@ -38,19 +38,25 @@ export function EarningsChart({ rides, dateRange }: EarningsChartProps) {
     // Group rides by month and calculate totals
     return months.map(month => {
       const monthRides = rides.filter(ride => {
-        const rideDate = parseISO(ride.startTime.toString());
+        const rideDate = parseISO(ride.sessionDate.toString());
         return isSameMonth(rideDate, month);
       });
 
-      const fareTotal = monthRides.reduce((sum, ride) => sum + Number(ride.fareAmount), 0);
-      const tipTotal = monthRides.reduce((sum, ride) => sum + Number(ride.tipAmount), 0);
-      const total = fareTotal + tipTotal;
+      const totalEarnings = monthRides.reduce((sum, ride) => sum + Number(ride.totalAmount), 0);
+      const totalHoursOnline = monthRides.reduce((sum, ride) => sum + Number(ride.timeOnline), 0);
+      const totalHoursBooked = monthRides.reduce((sum, ride) => sum + Number(ride.timeBooked), 0);
+      
+      // Calculate hourly rates
+      const hourlyRateOnline = totalHoursOnline > 0 ? totalEarnings / totalHoursOnline : 0;
+      const hourlyRateBooked = totalHoursBooked > 0 ? totalEarnings / totalHoursBooked : 0;
 
       return {
         month: format(month, "MMM yyyy"),
-        fare: parseFloat(fareTotal.toFixed(2)),
-        tips: parseFloat(tipTotal.toFixed(2)),
-        total: parseFloat(total.toFixed(2))
+        earnings: parseFloat(totalEarnings.toFixed(2)),
+        hoursOnline: parseFloat(totalHoursOnline.toFixed(1)),
+        hoursBooked: parseFloat(totalHoursBooked.toFixed(1)),
+        hourlyOnline: parseFloat(hourlyRateOnline.toFixed(2)),
+        hourlyBooked: parseFloat(hourlyRateBooked.toFixed(2))
       };
     });
   }, [rides, dateRange]);
@@ -61,9 +67,11 @@ export function EarningsChart({ rides, dateRange }: EarningsChartProps) {
       return (
         <div className="bg-background border border-border p-3 rounded-md shadow-md">
           <p className="font-medium">{label}</p>
-          <p className="text-sm text-primary">Fare: ${payload[0]?.value?.toFixed(2)}</p>
-          <p className="text-sm text-secondary">Tips: ${payload[1]?.value?.toFixed(2)}</p>
-          <p className="text-sm font-semibold">Total: ${payload[2]?.value?.toFixed(2)}</p>
+          <p className="text-sm text-primary">Earnings: ${payload[0]?.value?.toFixed(2)}</p>
+          <p className="text-sm text-muted-foreground">Hours Online: {payload[1]?.value?.toFixed(1)}</p>
+          <p className="text-sm text-muted-foreground">Hours Booked: {payload[2]?.value?.toFixed(1)}</p>
+          <p className="text-sm font-semibold">Hourly (Online): ${payload[3]?.value?.toFixed(2)}</p>
+          <p className="text-sm font-semibold">Hourly (Booked): ${payload[4]?.value?.toFixed(2)}</p>
         </div>
       );
     }
@@ -74,7 +82,7 @@ export function EarningsChart({ rides, dateRange }: EarningsChartProps) {
   const getYAxisDomain = (): AxisDomain => {
     if (chartData.length === 0) return [0, 10];
     
-    const maxValue = Math.max(...chartData.map(d => d.total));
+    const maxValue = Math.max(...chartData.map(d => d.earnings));
     // Add 10% padding to the top
     return [0, Math.ceil(maxValue * 1.1)];
   };
@@ -101,9 +109,9 @@ export function EarningsChart({ rides, dateRange }: EarningsChartProps) {
         />
         <Tooltip content={<CustomTooltip />} />
         <Legend />
-        <Bar dataKey="fare" name="Fare" fill="#3b82f6" radius={[4, 4, 0, 0]} />
-        <Bar dataKey="tips" name="Tips" fill="#10b981" radius={[4, 4, 0, 0]} />
-        <Bar dataKey="total" name="Total" fill="#6366f1" radius={[4, 4, 0, 0]} />
+        <Bar dataKey="earnings" name="Earnings" fill="#3b82f6" radius={[4, 4, 0, 0]} />
+        <Bar dataKey="hoursOnline" name="Hours Online" fill="#10b981" radius={[4, 4, 0, 0]} />
+        <Bar dataKey="hoursBooked" name="Hours Booked" fill="#6366f1" radius={[4, 4, 0, 0]} />
       </BarChart>
     </ResponsiveContainer>
   );

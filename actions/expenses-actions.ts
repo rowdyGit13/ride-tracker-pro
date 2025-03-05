@@ -22,6 +22,8 @@ export async function createExpenseAction(data: Omit<InsertExpense, "id" | "user
 
     const newExpense = await createExpense(expenseData);
     revalidatePath("/dashboard/expenses");
+    revalidatePath("/dashboard");
+    revalidatePath("/forms");
     return { status: "success", message: "Expense created successfully", data: newExpense };
   } catch (error) {
     return { status: "error", message: "Error creating expense" };

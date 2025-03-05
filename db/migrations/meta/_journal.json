@@ -8,6 +8,20 @@
       "when": 1741098611174,
       "tag": "0000_unknown_supreme_intelligence",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1741190501528,
+      "tag": "0001_ordinary_giant_man",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1741191521531,
+      "tag": "0002_cultured_rawhide_kid",
+      "breakpoints": true
     }
   ]
 }

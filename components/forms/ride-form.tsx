@@ -44,19 +44,14 @@ const rideFormSchema = z.object({
   rideType: z.enum(["uber", "lyft", "other"], {
     required_error: "Ride type is required",
   }),
-  rideStatus: z.enum(["completed", "canceled", "no_show"], {
-    required_error: "Ride status is required",
-  }).default("completed"),
-  startTime: z.date({
-    required_error: "Start time is required",
+  sessionDate: z.date({
+    required_error: "Session date is required",
   }),
-  endTime: z.date().optional(),
-  pickupLocation: z.string().optional(),
-  dropoffLocation: z.string().optional(),
-  distance: z.coerce.number().min(0).optional(),
-  fareAmount: z.coerce.number().min(0, "Fare amount is required"),
-  tipAmount: z.coerce.number().min(0).default(0),
-  totalAmount: z.coerce.number().min(0, "Total amount is required"),
+  timeOnline: z.coerce.number().min(0, "Time online is required"),
+  timeBooked: z.coerce.number().min(0, "Time booked is required"),
+  distanceOnline: z.coerce.number().min(0).optional(),
+  distanceBooked: z.coerce.number().min(0).optional(),
+  totalAmount: z.coerce.number().min(0, "Total earnings is required"),
   notes: z.string().optional(),
 });
 
@@ -88,43 +83,25 @@ export function RideForm({ initialData, closeDialog }: RideFormProps) {
     defaultValues: initialData ? {
       vehicleId: initialData.vehicleId,
       rideType: initialData.rideType,
-      rideStatus: initialData.rideStatus,
-      startTime: new Date(initialData.startTime),
-      endTime: initialData.endTime ? new Date(initialData.endTime) : undefined,
-      pickupLocation: initialData.pickupLocation || "",
-      dropoffLocation: initialData.dropoffLocation || "",
-      distance: initialData.distance ? Number(initialData.distance) : undefined,
-      fareAmount: Number(initialData.fareAmount),
-      tipAmount: Number(initialData.tipAmount),
+      sessionDate: new Date(initialData.sessionDate),
+      timeOnline: Number(initialData.timeOnline),
+      timeBooked: Number(initialData.timeBooked),
+      distanceOnline: initialData.distanceOnline ? Number(initialData.distanceOnline) : undefined,
+      distanceBooked: initialData.distanceBooked ? Number(initialData.distanceBooked) : undefined,
       totalAmount: Number(initialData.totalAmount),
       notes: initialData.notes || "",
     } : {
       vehicleId: "",
       rideType: "uber",
-      rideStatus: "completed",
-      startTime: new Date(),
-      endTime: undefined,
-      pickupLocation: "",
-      dropoffLocation: "",
-      distance: undefined,
-      fareAmount: 0,
-      tipAmount: 0,
+      sessionDate: new Date(),
+      timeOnline: 0,
+      timeBooked: 0,
+      distanceOnline: undefined,
+      distanceBooked: undefined,
       totalAmount: 0,
       notes: "",
     }
   });
-
-  // Calculate total amount when fare or tip changes
-  useEffect(() => {
-    const subscription = form.watch((value, { name }) => {
-      if (name === "fareAmount" || name === "tipAmount") {
-        const fare = value.fareAmount || 0;
-        const tip = value.tipAmount || 0;
-        form.setValue("totalAmount", Number(fare) + Number(tip));
-      }
-    });
-    return () => subscription.unsubscribe();
-  }, [form]);
 
   async function onSubmit(values: RideFormValues) {
     setIsLoading(true);
@@ -132,9 +109,10 @@ export function RideForm({ initialData, closeDialog }: RideFormProps) {
       // Convert numeric values to strings for database compatibility
       const formattedValues = {
         ...values,
-        distance: values.distance !== undefined ? String(values.distance) : undefined,
-        fareAmount: String(values.fareAmount),
-        tipAmount: String(values.tipAmount),
+        timeOnline: String(values.timeOnline),
+        timeBooked: String(values.timeBooked),
+        distanceOnline: values.distanceOnline !== undefined ? String(values.distanceOnline) : undefined,
+        distanceBooked: values.distanceBooked !== undefined ? String(values.distanceBooked) : undefined,
         totalAmount: String(values.totalAmount)
       };
 
@@ -151,7 +129,7 @@ export function RideForm({ initialData, closeDialog }: RideFormProps) {
         }
         toast({
           title: "Success",
-          description: "Ride updated successfully"
+          description: "Driving session updated successfully"
         });
       } else {
         // Create new ride
@@ -166,7 +144,7 @@ export function RideForm({ initialData, closeDialog }: RideFormProps) {
         }
         toast({
           title: "Success",
-          description: "Ride created successfully"
+          description: "Driving session created successfully"
         });
         form.reset();
       }
@@ -174,7 +152,7 @@ export function RideForm({ initialData, closeDialog }: RideFormProps) {
       if (closeDialog) {
         closeDialog();
       } else {
-        router.push("/dashboard/rides");
+        router.push("/forms");
       }
     } catch (error) {
       toast({
@@ -220,11 +198,11 @@ export function RideForm({ initialData, closeDialog }: RideFormProps) {
             name="rideType"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Ride Type</FormLabel>
+                <FormLabel>Platform</FormLabel>
                 <Select onValueChange={field.onChange} defaultValue={field.value}>
                   <FormControl>
                     <SelectTrigger>
-                      <SelectValue placeholder="Select ride type" />
+                      <SelectValue placeholder="Select platform" />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
@@ -239,32 +217,10 @@ export function RideForm({ initialData, closeDialog }: RideFormProps) {
           />
           <FormField
             control={form.control}
-            name="rideStatus"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Ride Status</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select ride status" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    <SelectItem value="completed">Completed</SelectItem>
-                    <SelectItem value="canceled">Canceled</SelectItem>
-                    <SelectItem value="no_show">No Show</SelectItem>
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="startTime"
+            name="sessionDate"
             render={({ field }) => (
               <FormItem className="flex flex-col">
-                <FormLabel>Start Time</FormLabel>
+                <FormLabel>Session Date</FormLabel>
                 <Popover>
                   <PopoverTrigger asChild>
                     <FormControl>
@@ -276,9 +232,9 @@ export function RideForm({ initialData, closeDialog }: RideFormProps) {
                         )}
                       >
                         {field.value ? (
-                          format(field.value, "PPP p")
+                          format(field.value, "PPP")
                         ) : (
-                          <span>Pick a date and time</span>
+                          <span>Pick a date</span>
                         )}
                         <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                       </Button>
@@ -289,20 +245,11 @@ export function RideForm({ initialData, closeDialog }: RideFormProps) {
                       mode="single"
                       selected={field.value}
                       onSelect={field.onChange}
+                      disabled={(date) =>
+                        date > new Date() || date < new Date("1900-01-01")
+                      }
                       initialFocus
                     />
-                    <div className="p-3 border-t border-border">
-                      <Input
-                        type="time"
-                        value={field.value ? format(field.value, "HH:mm") : ""}
-                        onChange={(e) => {
-                          const [hours, minutes] = e.target.value.split(":");
-                          const newDate = new Date(field.value);
-                          newDate.setHours(parseInt(hours), parseInt(minutes));
-                          field.onChange(newDate);
-                        }}
-                      />
-                    </div>
                   </PopoverContent>
                 </Popover>
                 <FormMessage />
@@ -311,117 +258,86 @@ export function RideForm({ initialData, closeDialog }: RideFormProps) {
           />
           <FormField
             control={form.control}
-            name="endTime"
+            name="timeOnline"
             render={({ field }) => (
-              <FormItem className="flex flex-col">
-                <FormLabel>End Time</FormLabel>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <FormControl>
-                      <Button
-                        variant={"outline"}
-                        className={cn(
-                          "w-full pl-3 text-left font-normal",
-                          !field.value && "text-muted-foreground"
-                        )}
-                      >
-                        {field.value ? (
-                          format(field.value, "PPP p")
-                        ) : (
-                          <span>Pick a date and time</span>
-                        )}
-                        <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                      </Button>
-                    </FormControl>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                      mode="single"
-                      selected={field.value}
-                      onSelect={field.onChange}
-                      initialFocus
-                    />
-                    <div className="p-3 border-t border-border">
-                      <Input
-                        type="time"
-                        value={field.value ? format(field.value, "HH:mm") : ""}
-                        onChange={(e) => {
-                          if (!field.value) return;
-                          const [hours, minutes] = e.target.value.split(":");
-                          const newDate = new Date(field.value);
-                          newDate.setHours(parseInt(hours), parseInt(minutes));
-                          field.onChange(newDate);
-                        }}
-                      />
-                    </div>
-                  </PopoverContent>
-                </Popover>
-                <FormDescription>Optional end time</FormDescription>
+              <FormItem>
+                <FormLabel>Time Online (hours)</FormLabel>
+                <FormControl>
+                  <Input type="number" step="0.1" min="0" {...field} />
+                </FormControl>
+                <FormDescription>
+                  Total hours spent online
+                </FormDescription>
                 <FormMessage />
               </FormItem>
             )}
           />
           <FormField
             control={form.control}
-            name="pickupLocation"
+            name="timeBooked"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Pickup Location</FormLabel>
+                <FormLabel>Time Booked (hours)</FormLabel>
                 <FormControl>
-                  <Input placeholder="123 Main St" {...field} />
+                  <Input type="number" step="0.1" min="0" {...field} />
                 </FormControl>
+                <FormDescription>
+                  Hours spent with passengers
+                </FormDescription>
                 <FormMessage />
               </FormItem>
             )}
           />
           <FormField
             control={form.control}
-            name="dropoffLocation"
+            name="distanceOnline"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Dropoff Location</FormLabel>
+                <FormLabel>Distance Online (miles)</FormLabel>
                 <FormControl>
-                  <Input placeholder="456 Oak Ave" {...field} />
+                  <Input 
+                    type="number" 
+                    step="0.1" 
+                    min="0" 
+                    placeholder="0.0" 
+                    {...field} 
+                    value={field.value === undefined ? "" : field.value}
+                    onChange={(e) => {
+                      const value = e.target.value === "" ? undefined : parseFloat(e.target.value);
+                      field.onChange(value);
+                    }}
+                  />
                 </FormControl>
+                <FormDescription>
+                  Total miles driven while online
+                </FormDescription>
                 <FormMessage />
               </FormItem>
             )}
           />
           <FormField
             control={form.control}
-            name="distance"
+            name="distanceBooked"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Distance (miles)</FormLabel>
+                <FormLabel>Distance Booked (miles)</FormLabel>
                 <FormControl>
-                  <Input type="number" step="0.1" {...field} value={field.value || ""} />
+                  <Input 
+                    type="number" 
+                    step="0.1" 
+                    min="0" 
+                    placeholder="0.0" 
+                    {...field} 
+                    value={field.value === undefined ? "" : field.value}
+                    onChange={(e) => {
+                      const value = e.target.value === "" ? undefined : parseFloat(e.target.value);
+                      field.onChange(value);
+                    }}
+                  />
                 </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="fareAmount"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Fare Amount ($)</FormLabel>
-                <FormControl>
-                  <Input type="number" step="0.01" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="tipAmount"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Tip Amount ($)</FormLabel>
-                <FormControl>
-                  <Input type="number" step="0.01" {...field} />
-                </FormControl>
+                <FormDescription>
+                  Miles driven with passengers
+                </FormDescription>
                 <FormMessage />
               </FormItem>
             )}
@@ -431,12 +347,12 @@ export function RideForm({ initialData, closeDialog }: RideFormProps) {
             name="totalAmount"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Total Amount ($)</FormLabel>
+                <FormLabel>Total Earnings ($)</FormLabel>
                 <FormControl>
-                  <Input type="number" step="0.01" {...field} readOnly />
+                  <Input type="number" step="0.01" min="0" {...field} />
                 </FormControl>
                 <FormDescription>
-                  Automatically calculated from fare and tip
+                  Total earnings for this session
                 </FormDescription>
                 <FormMessage />
               </FormItem>
@@ -450,7 +366,11 @@ export function RideForm({ initialData, closeDialog }: RideFormProps) {
             <FormItem>
               <FormLabel>Notes</FormLabel>
               <FormControl>
-                <Textarea placeholder="Any additional notes about this ride" {...field} />
+                <Textarea
+                  placeholder="Add any additional notes here..."
+                  className="resize-none"
+                  {...field}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -460,13 +380,18 @@ export function RideForm({ initialData, closeDialog }: RideFormProps) {
           <Button
             type="button"
             variant="outline"
-            onClick={closeDialog || (() => router.back())}
+            onClick={() => router.push("/forms")}
             disabled={isLoading}
           >
             Cancel
           </Button>
           <Button type="submit" disabled={isLoading}>
-            {isLoading ? "Saving..." : initialData ? "Update Ride" : "Add Ride"}
+            {isLoading ? (
+              <span className="flex items-center gap-1">
+                <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                Saving...
+              </span>
+            ) : initialData ? "Update Session" : "Add Session"}
           </Button>
         </div>
       </form>

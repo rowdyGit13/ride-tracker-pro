@@ -22,6 +22,8 @@ export async function createRideAction(data: Omit<InsertRide, "id" | "userId">):
 
     const newRide = await createRide(rideData);
     revalidatePath("/dashboard/rides");
+    revalidatePath("/dashboard");
+    revalidatePath("/forms");
     return { status: "success", message: "Ride created successfully", data: newRide };
   } catch (error) {
     return { status: "error", message: "Error creating ride" };

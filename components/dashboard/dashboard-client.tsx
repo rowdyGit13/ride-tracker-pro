@@ -30,7 +30,7 @@ export function DashboardClient({ rides, expenses, vehicles }: DashboardClientPr
   // Filter rides and expenses based on date range
   const filteredRides = useMemo(() => {
     return rides.filter(ride => {
-      const rideDate = parseISO(ride.startTime.toString());
+      const rideDate = parseISO(ride.sessionDate.toString());
       return dateRange?.from && dateRange?.to && isWithinInterval(rideDate, {
         start: dateRange.from,
         end: dateRange.to
@@ -51,7 +51,7 @@ export function DashboardClient({ rides, expenses, vehicles }: DashboardClientPr
   // Calculate summary metrics
   const summaryMetrics = useMemo(() => {
     const totalEarnings = filteredRides.reduce((sum, ride) => {
-      return sum + Number(ride.fareAmount) + Number(ride.tipAmount);
+      return sum + Number(ride.totalAmount);
     }, 0);
 
     const totalExpenses = filteredExpenses.reduce((sum, expense) => {
@@ -59,15 +59,32 @@ export function DashboardClient({ rides, expenses, vehicles }: DashboardClientPr
     }, 0);
 
     const netProfit = totalEarnings - totalExpenses;
-    const totalRides = filteredRides.length;
-    const avgEarningsPerRide = totalRides > 0 ? totalEarnings / totalRides : 0;
+    const totalSessions = filteredRides.length;
+    const avgEarningsPerSession = totalSessions > 0 ? totalEarnings / totalSessions : 0;
+
+    // Calculate total hours online and booked
+    const totalHoursOnline = filteredRides.reduce((sum, ride) => {
+      return sum + Number(ride.timeOnline);
+    }, 0);
+    
+    const totalHoursBooked = filteredRides.reduce((sum, ride) => {
+      return sum + Number(ride.timeBooked);
+    }, 0);
+    
+    // Calculate hourly rates
+    const hourlyRateOnline = totalHoursOnline > 0 ? totalEarnings / totalHoursOnline : 0;
+    const hourlyRateBooked = totalHoursBooked > 0 ? totalEarnings / totalHoursBooked : 0;
 
     return {
       totalEarnings,
       totalExpenses,
       netProfit,
-      totalRides,
-      avgEarningsPerRide
+      totalSessions,
+      avgEarningsPerSession,
+      totalHoursOnline,
+      totalHoursBooked,
+      hourlyRateOnline,
+      hourlyRateBooked
     };
   }, [filteredRides, filteredExpenses]);
 
@@ -77,7 +94,7 @@ export function DashboardClient({ rides, expenses, vehicles }: DashboardClientPr
         <div>
           <h2 className="text-3xl font-bold tracking-tight">Dashboard</h2>
           <p className="text-muted-foreground">
-            Performance overview of your rides and expenses
+            Performance overview of your driving sessions and expenses
           </p>
         </div>
         <DateRangePicker dateRange={dateRange} setDateRange={setDateRange} />
@@ -96,7 +113,7 @@ export function DashboardClient({ rides, expenses, vehicles }: DashboardClientPr
             <CardHeader>
               <CardTitle>Earnings Overview</CardTitle>
               <CardDescription>
-                Monthly breakdown of your earnings from rides
+                Monthly breakdown of your earnings from driving sessions
               </CardDescription>
             </CardHeader>
             <CardContent className="h-[400px]">

@@ -22,6 +22,8 @@ export async function createVehicleAction(data: Omit<InsertVehicle, "id" | "user
 
     const newVehicle = await createVehicle(vehicleData);
     revalidatePath("/dashboard/vehicles");
+    revalidatePath("/dashboard");
+    revalidatePath("/forms");
     return { status: "success", message: "Vehicle created successfully", data: newVehicle };
   } catch (error) {
     return { status: "error", message: "Error creating vehicle" };

@@ -65,14 +65,16 @@ export function VehicleForm({ initialData, closeDialog }: VehicleFormProps) {
 
   async function onSubmit(values: VehicleFormValues) {
     setIsLoading(true);
+    console.log("Submitting vehicle form with values:", values);
     try {
       if (initialData) {
         // Update existing vehicle
         const result = await updateVehicleAction(initialData.id, values);
         if (result.status === "error") {
+          console.error("Vehicle update error:", result);
           toast({
             title: "Error",
-            description: result.message,
+            description: result.message || "Failed to update vehicle",
             variant: "destructive"
           });
           return;
@@ -83,13 +85,16 @@ export function VehicleForm({ initialData, closeDialog }: VehicleFormProps) {
         });
       } else {
         // Create new vehicle
+        console.log("Creating new vehicle with data:", values);
         const result = await createVehicleAction(values);
+        console.log("Vehicle creation result:", result);
         if (result.status === "error") {
           toast({
             title: "Error",
-            description: result.message,
+            description: result.message || "Failed to create vehicle",
             variant: "destructive"
           });
+          console.error("Vehicle creation error details:", result);
           return;
         }
         toast({
@@ -102,12 +107,13 @@ export function VehicleForm({ initialData, closeDialog }: VehicleFormProps) {
       if (closeDialog) {
         closeDialog();
       } else {
-        router.push("/dashboard/vehicles");
+        router.push("/forms");
       }
     } catch (error) {
+      console.error("Vehicle form submission error:", error);
       toast({
         title: "Error",
-        description: "Something went wrong. Please try again.",
+        description: typeof error === 'object' && error !== null ? JSON.stringify(error) : "Something went wrong. Please try again.",
         variant: "destructive"
       });
     } finally {
