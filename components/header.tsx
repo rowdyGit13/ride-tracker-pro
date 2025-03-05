@@ -61,11 +61,6 @@ export default function Header() {
                       href: "#",
                       description: "Visualize your performance with charts"
                     },
-                    {
-                      title: "Tax Preparation",
-                      href: "#",
-                      description: "Simplify your tax filing with organized data"
-                    },
                   ].map((item) => (
                     <li key={item.title}>
                       <NavigationMenuLink asChild>
@@ -177,13 +172,6 @@ export default function Header() {
                   onClick={toggleMenu}
                 >
                   Performance Analytics
-                </Link>
-                <Link
-                  href="#"
-                  className="block py-1 text-sm text-muted-foreground hover:text-foreground"
-                  onClick={toggleMenu}
-                >
-                  Tax Preparation
                 </Link>
               </div>
             </div>
