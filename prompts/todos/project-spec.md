@@ -8,18 +8,10 @@ We're working on a ride tracker app. The idea is to have a place for drivers to 
 
 ## Core features
 
-- [ ] dashboard with summary of earnings and expenses
 - [ ] form to add a new ride
 - [ ] form to add a new vehicle
 - [ ] form to add a new expense
-
-
-### dashboard with summary of earnings and expenses
-
-- [ ] Add button dictacting date range for the charts
-- [ ] Add bar chart showing gross earnings by month
-- [ ] Add bar chart showing expenses by month
-- [ ] Add line chart showing kelly blue book value of the vehicle over time
+- [ ] dashboard with summary of earnings and expenses
 
 
 ### form to add a new ride
@@ -40,3 +32,10 @@ We're working on a ride tracker app. The idea is to have a place for drivers to 
 - [ ] Add a section for amount.
 - [ ] Add a section for date.
 - [ ] Add a section for notes.
+
+### dashboard with summary of earnings and expenses
+
+- [ ] Add button dictacting date range for the charts
+- [ ] Add bar chart showing gross earnings by month
+- [ ] Add bar chart showing expenses by month
+- [ ] Add line chart showing kelly blue book value of the vehicle over time
