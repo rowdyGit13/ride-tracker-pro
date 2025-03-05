@@ -1,7 +1,6 @@
 import nextPlugin from '@next/eslint-plugin-next';
 import tsPlugin from '@typescript-eslint/eslint-plugin';
 import tsParser from '@typescript-eslint/parser';
-import '@/styles/globals.css';
 
 export default [
   {
