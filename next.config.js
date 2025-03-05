@@ -1,7 +1,8 @@
 /** @type {import('next').NextConfig} */
 
 const nextConfig = {
-  output: 'standalone',
+  // Only use standalone output in non-Vercel environments
+  output: process.env.VERCEL ? undefined : 'standalone',
   images: {
     unoptimized: process.env.NODE_ENV !== 'production',
   },
@@ -9,7 +10,7 @@ const nextConfig = {
   transpilePackages: ['next-themes'],
   // Use the new ESLint flat config format
   eslint: {
-    ignoreDuringBuilds: true,
+    ignoreDuringBuilds: true, // Set to true to bypass ESLint during build
   },
   // Disable the standalone output warning for missing files
   outputFileTracingExcludes: {
@@ -17,4 +18,4 @@ const nextConfig = {
   },
 };
 
-module.exports = nextConfig; 
+module.exports = nextConfig;
