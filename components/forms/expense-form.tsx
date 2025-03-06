@@ -49,8 +49,6 @@ const expenseFormSchema = z.object({
     required_error: "Date is required",
   }),
   description: z.string().optional(),
-  receiptUrl: z.string().optional(),
-  isTaxDeductible: z.enum(["yes", "no", "partial"]).default("yes"),
 });
 
 type ExpenseFormValues = z.infer<typeof expenseFormSchema>;
@@ -84,16 +82,12 @@ export function ExpenseForm({ initialData, closeDialog }: ExpenseFormProps) {
       amount: Number(initialData.amount),
       date: new Date(initialData.date),
       description: initialData.description || "",
-      receiptUrl: initialData.receiptUrl || "",
-      isTaxDeductible: initialData.isTaxDeductible as "yes" | "no" | "partial" || "yes",
     } : {
       vehicleId: "",
       expenseType: "fuel",
       amount: 0,
       date: new Date(),
       description: "",
-      receiptUrl: "",
-      isTaxDeductible: "yes",
     }
   });
 
@@ -257,44 +251,6 @@ export function ExpenseForm({ initialData, closeDialog }: ExpenseFormProps) {
                     />
                   </PopoverContent>
                 </Popover>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="isTaxDeductible"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Tax Deductible</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Is this expense tax deductible?" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    <SelectItem value="yes">Yes</SelectItem>
-                    <SelectItem value="no">No</SelectItem>
-                    <SelectItem value="partial">Partially</SelectItem>
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="receiptUrl"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Receipt URL</FormLabel>
-                <FormControl>
-                  <Input placeholder="https://example.com/receipt.jpg" {...field} />
-                </FormControl>
-                <FormDescription>
-                  Optional link to a receipt image
-                </FormDescription>
                 <FormMessage />
               </FormItem>
             )}

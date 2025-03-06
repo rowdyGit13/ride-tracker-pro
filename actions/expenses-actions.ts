@@ -21,11 +21,18 @@ export async function createExpenseAction(data: Omit<InsertExpense, "id" | "user
     };
 
     const newExpense = await createExpense(expenseData);
+    
+    // Ensure all paths are revalidated
     revalidatePath("/dashboard/expenses");
     revalidatePath("/dashboard");
     revalidatePath("/forms");
+    revalidatePath("/");
+    
+    console.log("Expense created and paths revalidated:", newExpense.id);
+    
     return { status: "success", message: "Expense created successfully", data: newExpense };
   } catch (error) {
+    console.error("Error creating expense:", error);
     return { status: "error", message: "Error creating expense" };
   }
 }
@@ -83,9 +90,18 @@ export async function updateExpenseAction(id: string, data: Partial<InsertExpens
     }
 
     const updatedExpense = await updateExpense(id, data);
+    
+    // Ensure all paths are revalidated
     revalidatePath("/dashboard/expenses");
+    revalidatePath("/dashboard");
+    revalidatePath("/forms");
+    revalidatePath("/");
+    
+    console.log("Expense updated and paths revalidated:", id);
+    
     return { status: "success", message: "Expense updated successfully", data: updatedExpense };
   } catch (error) {
+    console.error("Error updating expense:", error);
     return { status: "error", message: "Failed to update expense" };
   }
 }
@@ -107,9 +123,18 @@ export async function deleteExpenseAction(id: string): Promise<ActionState> {
     }
 
     await deleteExpense(id);
+    
+    // Ensure all paths are revalidated
     revalidatePath("/dashboard/expenses");
+    revalidatePath("/dashboard");
+    revalidatePath("/forms");
+    revalidatePath("/");
+    
+    console.log("Expense deleted and paths revalidated:", id);
+    
     return { status: "success", message: "Expense deleted successfully" };
   } catch (error) {
+    console.error("Error deleting expense:", error);
     return { status: "error", message: "Failed to delete expense" };
   }
 } 

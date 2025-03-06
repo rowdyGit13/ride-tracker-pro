@@ -1,0 +1,1 @@
+ALTER TABLE "expenses" ALTER COLUMN "is_tax_deductible" DROP DEFAULT;

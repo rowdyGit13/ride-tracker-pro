@@ -40,25 +40,29 @@ export function DateRangePicker({ dateRange, setDateRange }: DateRangePickerProp
       case "last-3-months":
         setDateRange({
           from: startOfMonth(subMonths(today, 2)),
-          to: endOfMonth(today)
+          to: today
         });
         break;
       case "last-6-months":
         setDateRange({
           from: startOfMonth(subMonths(today, 5)),
-          to: endOfMonth(today)
+          to: today
         });
         break;
       case "last-year":
         setDateRange({
           from: startOfMonth(subMonths(today, 11)),
-          to: endOfMonth(today)
+          to: today
         });
         break;
       case "all-time":
+        // For all time, set to undefined to show all data
         setDateRange(undefined);
         break;
     }
+    
+    // Debug log the selected range
+    console.log("Date range selected:", value, dateRange);
   };
 
   return (

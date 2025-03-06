@@ -21,11 +21,18 @@ export async function createRideAction(data: Omit<InsertRide, "id" | "userId">):
     };
 
     const newRide = await createRide(rideData);
+    
+    // Ensure all paths are revalidated
     revalidatePath("/dashboard/rides");
     revalidatePath("/dashboard");
     revalidatePath("/forms");
+    revalidatePath("/");
+    
+    console.log("Ride created and paths revalidated:", newRide.id);
+    
     return { status: "success", message: "Ride created successfully", data: newRide };
   } catch (error) {
+    console.error("Error creating ride:", error);
     return { status: "error", message: "Error creating ride" };
   }
 }
@@ -83,9 +90,18 @@ export async function updateRideAction(id: string, data: Partial<InsertRide>): P
     }
 
     const updatedRide = await updateRide(id, data);
+    
+    // Ensure all paths are revalidated
     revalidatePath("/dashboard/rides");
+    revalidatePath("/dashboard");
+    revalidatePath("/forms");
+    revalidatePath("/");
+    
+    console.log("Ride updated and paths revalidated:", id);
+    
     return { status: "success", message: "Ride updated successfully", data: updatedRide };
   } catch (error) {
+    console.error("Error updating ride:", error);
     return { status: "error", message: "Failed to update ride" };
   }
 }
@@ -107,9 +123,18 @@ export async function deleteRideAction(id: string): Promise<ActionState> {
     }
 
     await deleteRide(id);
+    
+    // Ensure all paths are revalidated
     revalidatePath("/dashboard/rides");
+    revalidatePath("/dashboard");
+    revalidatePath("/forms");
+    revalidatePath("/");
+    
+    console.log("Ride deleted and paths revalidated:", id);
+    
     return { status: "success", message: "Ride deleted successfully" };
   } catch (error) {
+    console.error("Error deleting ride:", error);
     return { status: "error", message: "Failed to delete ride" };
   }
 } 

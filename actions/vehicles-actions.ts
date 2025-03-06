@@ -21,11 +21,18 @@ export async function createVehicleAction(data: Omit<InsertVehicle, "id" | "user
     };
 
     const newVehicle = await createVehicle(vehicleData);
+    
+    // Ensure all paths are revalidated
     revalidatePath("/dashboard/vehicles");
     revalidatePath("/dashboard");
     revalidatePath("/forms");
+    revalidatePath("/");
+    
+    console.log("Vehicle created and paths revalidated:", newVehicle.id);
+    
     return { status: "success", message: "Vehicle created successfully", data: newVehicle };
   } catch (error) {
+    console.error("Error creating vehicle:", error);
     return { status: "error", message: "Error creating vehicle" };
   }
 }
@@ -83,9 +90,18 @@ export async function updateVehicleAction(id: string, data: Partial<InsertVehicl
     }
 
     const updatedVehicle = await updateVehicle(id, data);
+    
+    // Ensure all paths are revalidated
     revalidatePath("/dashboard/vehicles");
+    revalidatePath("/dashboard");
+    revalidatePath("/forms");
+    revalidatePath("/");
+    
+    console.log("Vehicle updated and paths revalidated:", id);
+    
     return { status: "success", message: "Vehicle updated successfully", data: updatedVehicle };
   } catch (error) {
+    console.error("Error updating vehicle:", error);
     return { status: "error", message: "Failed to update vehicle" };
   }
 }
@@ -107,9 +123,18 @@ export async function deleteVehicleAction(id: string): Promise<ActionState> {
     }
 
     await deleteVehicle(id);
+    
+    // Ensure all paths are revalidated
     revalidatePath("/dashboard/vehicles");
+    revalidatePath("/dashboard");
+    revalidatePath("/forms");
+    revalidatePath("/");
+    
+    console.log("Vehicle deleted and paths revalidated:", id);
+    
     return { status: "success", message: "Vehicle deleted successfully" };
   } catch (error) {
+    console.error("Error deleting vehicle:", error);
     return { status: "error", message: "Failed to delete vehicle" };
   }
 }

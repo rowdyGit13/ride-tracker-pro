@@ -3,7 +3,6 @@ import Header from "@/components/header";
 import { Toaster } from "@/components/ui/toaster";
 import { Providers } from "@/components/utilities/providers";
 import { ClerkProvider } from "@clerk/nextjs";
-import { auth } from "@clerk/nextjs/server";
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import { Suspense } from "react";
@@ -33,7 +32,7 @@ export const metadata: Metadata = {
     siteName: "Ride Tracker Pro",
     images: [
       {
-        url: "/og-image.jpg", // You'll need to create this image
+        url: "/og-image.jpg",
         width: 1200,
         height: 630,
         alt: "Ride Tracker Pro"
@@ -44,7 +43,7 @@ export const metadata: Metadata = {
   }
 };
 
-export default async function RootLayout({
+export default function RootLayout({
   children
 }: Readonly<{
   children: React.ReactNode;

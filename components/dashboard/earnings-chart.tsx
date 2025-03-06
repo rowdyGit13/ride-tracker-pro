@@ -16,6 +16,7 @@ import {
   TooltipProps
 } from "recharts";
 import { AxisDomain } from "recharts/types/util/types";
+import { parseDate } from "@/lib/utils";
 
 interface EarningsChartProps {
   rides: SelectRide[];
@@ -25,8 +26,59 @@ interface EarningsChartProps {
 export function EarningsChart({ rides, dateRange }: EarningsChartProps) {
   // Prepare data for the chart
   const chartData = useMemo(() => {
+    // Debug log
+    console.log("EarningsChart - Preparing chart data");
+    console.log(`Rides count: ${rides.length}`);
+    console.log("Date range:", dateRange);
+    
     if (!dateRange?.from || !dateRange?.to) {
-      return [];
+      console.log("No date range selected, using all rides");
+      // If no date range, use all rides grouped by month
+      if (rides.length === 0) {
+        return [];
+      }
+      
+      // Get min and max dates from rides
+      const dates = rides.map(ride => {
+        const parsedDate = parseDate(ride.sessionDate);
+        return parsedDate || new Date(); // Fallback to now if parsing fails
+      });
+      
+      const minDate = new Date(Math.min(...dates.map(d => d.getTime())));
+      const maxDate = new Date(Math.max(...dates.map(d => d.getTime())));
+      
+      console.log("Min date:", minDate, "Max date:", maxDate);
+      
+      // Create an array of months between min and max dates
+      const months = eachMonthOfInterval({
+        start: startOfMonth(minDate),
+        end: endOfMonth(maxDate)
+      });
+      
+      // Group rides by month and calculate totals
+      return months.map(month => {
+        const monthRides = rides.filter(ride => {
+          const rideDate = parseISO(ride.sessionDate.toString());
+          return isSameMonth(rideDate, month);
+        });
+
+        const totalEarnings = monthRides.reduce((sum, ride) => sum + Number(ride.totalAmount), 0);
+        const totalHoursOnline = monthRides.reduce((sum, ride) => sum + Number(ride.timeOnline), 0);
+        const totalHoursBooked = monthRides.reduce((sum, ride) => sum + Number(ride.timeBooked), 0);
+        
+        // Calculate hourly rates
+        const hourlyRateOnline = totalHoursOnline > 0 ? totalEarnings / totalHoursOnline : 0;
+        const hourlyRateBooked = totalHoursBooked > 0 ? totalEarnings / totalHoursBooked : 0;
+
+        return {
+          month: format(month, "MMM yyyy"),
+          earnings: parseFloat(totalEarnings.toFixed(2)),
+          hoursOnline: parseFloat(totalHoursOnline.toFixed(1)),
+          hoursBooked: parseFloat(totalHoursBooked.toFixed(1)),
+          hourlyOnline: parseFloat(hourlyRateOnline.toFixed(2)),
+          hourlyBooked: parseFloat(hourlyRateBooked.toFixed(2))
+        };
+      });
     }
 
     // Create an array of months in the date range
@@ -34,12 +86,19 @@ export function EarningsChart({ rides, dateRange }: EarningsChartProps) {
       start: startOfMonth(dateRange.from),
       end: endOfMonth(dateRange.to)
     });
+    
+    console.log("Months in range:", months.map(m => format(m, "MMM yyyy")));
 
     // Group rides by month and calculate totals
     return months.map(month => {
       const monthRides = rides.filter(ride => {
-        const rideDate = parseISO(ride.sessionDate.toString());
-        return isSameMonth(rideDate, month);
+        try {
+          const rideDate = parseISO(ride.sessionDate.toString());
+          return isSameMonth(rideDate, month);
+        } catch (error) {
+          console.error("Error parsing ride date:", error, ride.sessionDate);
+          return false;
+        }
       });
 
       const totalEarnings = monthRides.reduce((sum, ride) => sum + Number(ride.totalAmount), 0);

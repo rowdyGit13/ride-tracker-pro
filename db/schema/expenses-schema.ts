@@ -10,8 +10,9 @@ export const expensesTable = pgTable("expenses", {
   amount: numeric("amount").notNull(),
   date: timestamp("date").notNull(),
   description: text("description"),
+  // DEPRECATED: These fields are kept for backward compatibility but are no longer used in the UI
   receiptUrl: text("receipt_url"),
-  isTaxDeductible: text("is_tax_deductible").default("yes"),
+  isTaxDeductible: text("is_tax_deductible"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at")
     .defaultNow()

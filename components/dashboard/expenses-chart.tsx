@@ -16,6 +16,7 @@ import {
   TooltipProps
 } from "recharts";
 import { AxisDomain } from "recharts/types/util/types";
+import { parseDate } from "@/lib/utils";
 
 interface ExpensesChartProps {
   expenses: SelectExpense[];
@@ -25,8 +26,61 @@ interface ExpensesChartProps {
 export function ExpensesChart({ expenses, dateRange }: ExpensesChartProps) {
   // Group expenses by type for the chart
   const chartData = useMemo(() => {
+    // Debug log
+    console.log("ExpensesChart - Preparing chart data");
+    console.log(`Expenses count: ${expenses.length}`);
+    console.log("Date range:", dateRange);
+    
     if (!dateRange?.from || !dateRange?.to) {
-      return [];
+      console.log("No date range selected, using all expenses");
+      // If no date range, use all expenses grouped by month
+      if (expenses.length === 0) {
+        return [];
+      }
+      
+      // Get min and max dates from expenses
+      const dates = expenses.map(expense => {
+        const parsedDate = parseDate(expense.date);
+        return parsedDate || new Date(); // Fallback to now if parsing fails
+      });
+      
+      const minDate = new Date(Math.min(...dates.map(d => d.getTime())));
+      const maxDate = new Date(Math.max(...dates.map(d => d.getTime())));
+      
+      console.log("Min date:", minDate, "Max date:", maxDate);
+      
+      // Create an array of months between min and max dates
+      const months = eachMonthOfInterval({
+        start: startOfMonth(minDate),
+        end: endOfMonth(maxDate)
+      });
+      
+      // Group expenses by month and type
+      return months.map(month => {
+        const monthExpenses = expenses.filter(expense => {
+          const expenseDate = parseISO(expense.date.toString());
+          return isSameMonth(expenseDate, month);
+        });
+
+        // Group by expense type
+        const expensesByType = monthExpenses.reduce((acc, expense) => {
+          const type = expense.expenseType;
+          if (!acc[type]) {
+            acc[type] = 0;
+          }
+          acc[type] += Number(expense.amount);
+          return acc;
+        }, {} as Record<string, number>);
+
+        // Calculate total for the month
+        const total = monthExpenses.reduce((sum, expense) => sum + Number(expense.amount), 0);
+
+        return {
+          month: format(month, "MMM yyyy"),
+          ...expensesByType,
+          total: parseFloat(total.toFixed(2))
+        };
+      });
     }
 
     // Create an array of months in the date range
@@ -34,12 +88,19 @@ export function ExpensesChart({ expenses, dateRange }: ExpensesChartProps) {
       start: startOfMonth(dateRange.from),
       end: endOfMonth(dateRange.to)
     });
+    
+    console.log("Months in range:", months.map(m => format(m, "MMM yyyy")));
 
     // Group expenses by month and type
     return months.map(month => {
       const monthExpenses = expenses.filter(expense => {
-        const expenseDate = parseISO(expense.date.toString());
-        return isSameMonth(expenseDate, month);
+        try {
+          const expenseDate = parseISO(expense.date.toString());
+          return isSameMonth(expenseDate, month);
+        } catch (error) {
+          console.error("Error parsing expense date:", error, expense.date);
+          return false;
+        }
       });
 
       // Group by expense type
