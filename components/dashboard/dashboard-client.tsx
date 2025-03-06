@@ -307,7 +307,10 @@ export function DashboardClient({ rides, expenses, vehicles }: DashboardClientPr
               </CardDescription>
             </CardHeader>
             <CardContent className="h-[400px]">
-              <EarningsChart rides={filteredRides} dateRange={dateRange} />
+              <EarningsChart 
+                rides={filteredRides.length > 0 ? filteredRides : rides} 
+                dateRange={filteredRides.length > 0 ? dateRange : undefined} 
+              />
             </CardContent>
           </Card>
         </TabsContent>
@@ -320,7 +323,10 @@ export function DashboardClient({ rides, expenses, vehicles }: DashboardClientPr
               </CardDescription>
             </CardHeader>
             <CardContent className="h-[400px]">
-              <ExpensesChart expenses={filteredExpenses} dateRange={dateRange} />
+              <ExpensesChart 
+                expenses={filteredExpenses.length > 0 ? filteredExpenses : expenses} 
+                dateRange={filteredExpenses.length > 0 ? dateRange : undefined} 
+              />
             </CardContent>
           </Card>
         </TabsContent>
@@ -335,8 +341,8 @@ export function DashboardClient({ rides, expenses, vehicles }: DashboardClientPr
             <CardContent className="h-[400px]">
               <VehicleValueChart 
                 vehicles={vehicles} 
-                rides={filteredRides} 
-                expenses={filteredExpenses} 
+                rides={filteredRides.length > 0 ? filteredRides : rides} 
+                expenses={filteredExpenses.length > 0 ? filteredExpenses : expenses} 
               />
             </CardContent>
           </Card>

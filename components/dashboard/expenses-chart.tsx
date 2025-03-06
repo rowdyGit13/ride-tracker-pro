@@ -31,97 +31,120 @@ export function ExpensesChart({ expenses, dateRange }: ExpensesChartProps) {
     console.log(`Expenses count: ${expenses.length}`);
     console.log("Date range:", dateRange);
     
-    if (!dateRange?.from || !dateRange?.to) {
-      console.log("No date range selected, using all expenses");
-      // If no date range, use all expenses grouped by month
-      if (expenses.length === 0) {
-        return [];
-      }
-      
-      // Get min and max dates from expenses
-      const dates = expenses.map(expense => {
-        const parsedDate = parseDate(expense.date);
-        return parsedDate || new Date(); // Fallback to now if parsing fails
-      });
-      
-      const minDate = new Date(Math.min(...dates.map(d => d.getTime())));
-      const maxDate = new Date(Math.max(...dates.map(d => d.getTime())));
-      
-      console.log("Min date:", minDate, "Max date:", maxDate);
-      
-      // Create an array of months between min and max dates
-      const months = eachMonthOfInterval({
-        start: startOfMonth(minDate),
-        end: endOfMonth(maxDate)
-      });
-      
-      // Group expenses by month and type
-      return months.map(month => {
-        const monthExpenses = expenses.filter(expense => {
-          const expenseDate = parseISO(expense.date.toString());
-          return isSameMonth(expenseDate, month);
-        });
-
-        // Group by expense type
-        const expensesByType = monthExpenses.reduce((acc, expense) => {
-          const type = expense.expenseType;
-          if (!acc[type]) {
-            acc[type] = 0;
-          }
-          acc[type] += Number(expense.amount);
-          return acc;
-        }, {} as Record<string, number>);
-
-        // Calculate total for the month
-        const total = monthExpenses.reduce((sum, expense) => sum + Number(expense.amount), 0);
-
-        return {
-          month: format(month, "MMM yyyy"),
-          ...expensesByType,
-          total: parseFloat(total.toFixed(2))
-        };
-      });
+    if (expenses.length === 0) {
+      console.log("No expenses to display");
+      return [];
     }
-
-    // Create an array of months in the date range
-    const months = eachMonthOfInterval({
-      start: startOfMonth(dateRange.from),
-      end: endOfMonth(dateRange.to)
-    });
     
-    console.log("Months in range:", months.map(m => format(m, "MMM yyyy")));
-
-    // Group expenses by month and type
-    return months.map(month => {
-      const monthExpenses = expenses.filter(expense => {
-        try {
-          const expenseDate = parseISO(expense.date.toString());
-          return isSameMonth(expenseDate, month);
-        } catch (error) {
-          console.error("Error parsing expense date:", error, expense.date);
-          return false;
+    try {
+      if (!dateRange?.from || !dateRange?.to) {
+        console.log("No date range selected, using all expenses");
+        
+        // Get min and max dates from expenses with our utility
+        const validDates = expenses
+          .map(expense => parseDate(expense.date))
+          .filter(date => date !== null) as Date[];
+        
+        if (validDates.length === 0) {
+          console.log("No valid dates found in expenses");
+          return [];
         }
-      });
-
-      // Group by expense type
-      const expensesByType = monthExpenses.reduce((acc, expense) => {
-        const type = expense.expenseType;
-        if (!acc[type]) {
-          acc[type] = 0;
-        }
-        acc[type] += Number(expense.amount);
-        return acc;
-      }, {} as Record<string, number>);
-
-      // Calculate total for the month
-      const total = monthExpenses.reduce((sum, expense) => sum + Number(expense.amount), 0);
-
-      return {
-        month: format(month, "MMM yyyy"),
-        ...expensesByType,
-        total: parseFloat(total.toFixed(2))
-      };
-    });
+        
+        const minDate = new Date(Math.min(...validDates.map(d => d.getTime())));
+        const maxDate = new Date(Math.max(...validDates.map(d => d.getTime())));
+        
+        console.log("Min date:", minDate, "Max date:", maxDate);
+        
+        // Create an array of months between min and max dates
+        const months = eachMonthOfInterval({
+          start: startOfMonth(minDate),
+          end: endOfMonth(maxDate)
+        });
+        
+        console.log("Months in range:", months);
+        
+        // Create data for each month
+        return months.map(month => {
+          // Initialize expense types
+          const monthData = {
+            month: format(month, 'MMM yyyy'),
+            fuel: 0,
+            maintenance: 0,
+            insurance: 0,
+            car_payment: 0,
+            cleaning: 0,
+            parking: 0,
+            tolls: 0,
+            other: 0,
+            total: 0
+          };
+          
+          // Get expenses for this month
+          const monthExpenses = expenses.filter(expense => {
+            const expenseDate = parseDate(expense.date);
+            return expenseDate && isSameMonth(expenseDate, month);
+          });
+          
+          // Sum expenses by type
+          monthExpenses.forEach(expense => {
+            const amount = Number(expense.amount);
+            if (!isNaN(amount)) {
+              // @ts-ignore - We know these properties exist
+              monthData[expense.expenseType] += amount;
+              monthData.total += amount;
+            }
+          });
+          
+          return monthData;
+        });
+      } else {
+        // If date range is provided, group by month within that range
+        const months = eachMonthOfInterval({
+          start: startOfMonth(dateRange.from),
+          end: endOfMonth(dateRange.to)
+        });
+        
+        console.log("Months in range:", months);
+        
+        // Create data for each month
+        return months.map(month => {
+          // Initialize expense types
+          const monthData = {
+            month: format(month, 'MMM yyyy'),
+            fuel: 0,
+            maintenance: 0,
+            insurance: 0,
+            car_payment: 0,
+            cleaning: 0,
+            parking: 0,
+            tolls: 0,
+            other: 0,
+            total: 0
+          };
+          
+          // Get expenses for this month
+          const monthExpenses = expenses.filter(expense => {
+            const expenseDate = parseDate(expense.date);
+            return expenseDate && isSameMonth(expenseDate, month);
+          });
+          
+          // Sum expenses by type
+          monthExpenses.forEach(expense => {
+            const amount = Number(expense.amount);
+            if (!isNaN(amount)) {
+              // @ts-ignore - We know these properties exist
+              monthData[expense.expenseType] += amount;
+              monthData.total += amount;
+            }
+          });
+          
+          return monthData;
+        });
+      }
+    } catch (error) {
+      console.error("Error processing expenses chart data:", error);
+      return [];
+    }
   }, [expenses, dateRange]);
 
   // Get unique expense types for chart configuration
@@ -136,14 +159,26 @@ export function ExpensesChart({ expenses, dateRange }: ExpensesChartProps) {
   // Custom tooltip
   const CustomTooltip = ({ active, payload, label }: TooltipProps<number, string>) => {
     if (active && payload && payload.length) {
+      // Filter out zero values
+      const nonZeroPayload = payload.filter(entry => entry.value && entry.value > 0);
+      
       return (
-        <div className="bg-background border border-border p-3 rounded-md shadow-md">
-          <p className="font-medium">{label}</p>
-          {payload.map((entry, index) => (
-            <p key={index} className="text-sm" style={{ color: entry.color }}>
-              {entry.name}: ${entry.value?.toFixed(2)}
+        <div className="bg-white p-3 border rounded shadow-sm">
+          <p className="font-medium text-sm mb-1">{label}</p>
+          {nonZeroPayload.map((entry, index) => (
+            <p key={index} className="text-sm mb-1">
+              <span 
+                className="inline-block w-3 h-3 mr-2 rounded-full" 
+                style={{ backgroundColor: entry.color }}
+              ></span>
+              {entry.name}: ${entry.value?.toFixed(2) || '0.00'}
             </p>
           ))}
+          {payload.find(p => p.dataKey === 'total' && p.value) && (
+            <p className="text-sm font-semibold mt-1 border-t pt-1">
+              Total: ${payload.find(p => p.dataKey === 'total')?.value?.toFixed(2) || '0.00'}
+            </p>
+          )}
         </div>
       );
     }
@@ -183,29 +218,46 @@ export function ExpensesChart({ expenses, dateRange }: ExpensesChartProps) {
 
   return (
     <ResponsiveContainer width="100%" height="100%">
-      <BarChart
-        data={chartData}
-        margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
-      >
-        <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-        <XAxis dataKey="month" />
-        <YAxis 
-          tickFormatter={(value) => `$${value}`}
-          domain={getYAxisDomain()}
-        />
-        <Tooltip content={<CustomTooltip />} />
-        <Legend />
-        {expenseTypes.map((type, index) => (
-          <Bar 
-            key={type} 
-            dataKey={type} 
-            name={type.charAt(0).toUpperCase() + type.slice(1)} 
-            fill={colors[index % colors.length]} 
-            radius={[4, 4, 0, 0]}
-            stackId="a"
+      {chartData.length > 0 ? (
+        <BarChart 
+          data={chartData} 
+          margin={{ top: 20, right: 30, left: 20, bottom: 70 }}
+          stackOffset="sign"
+        >
+          <CartesianGrid strokeDasharray="3 3" />
+          <XAxis 
+            dataKey="month" 
+            tick={{ fontSize: 12 }}
+            angle={-45}
+            textAnchor="end"
+            height={70}
           />
-        ))}
-      </BarChart>
+          <YAxis 
+            tickFormatter={(value) => `$${value}`} 
+            domain={getYAxisDomain()}
+            width={80}
+          />
+          <Tooltip content={<CustomTooltip />} />
+          <Legend />
+          <Bar dataKey="fuel" name="Fuel" stackId="a" fill="#3b82f6" radius={[0, 0, 0, 0]} />
+          <Bar dataKey="maintenance" name="Maintenance" stackId="a" fill="#10b981" radius={[0, 0, 0, 0]} />
+          <Bar dataKey="insurance" name="Insurance" stackId="a" fill="#f59e0b" radius={[0, 0, 0, 0]} />
+          <Bar dataKey="car_payment" name="Car Payment" stackId="a" fill="#ef4444" radius={[0, 0, 0, 0]} />
+          <Bar dataKey="cleaning" name="Cleaning" stackId="a" fill="#8b5cf6" radius={[0, 0, 0, 0]} />
+          <Bar dataKey="parking" name="Parking" stackId="a" fill="#ec4899" radius={[0, 0, 0, 0]} />
+          <Bar dataKey="tolls" name="Tolls" stackId="a" fill="#64748b" radius={[0, 0, 0, 0]} />
+          <Bar dataKey="other" name="Other" stackId="a" fill="#9ca3af" radius={[0, 0, 0, 0]} />
+        </BarChart>
+      ) : (
+        <div className="flex flex-col items-center justify-center h-full">
+          <p className="text-gray-500 text-center mb-2">No expense data available</p>
+          {expenses.length === 0 ? (
+            <p className="text-sm text-gray-400">Record your first expense to see data here</p>
+          ) : (
+            <p className="text-sm text-gray-400">Try selecting a different date range</p>
+          )}
+        </div>
+      )}
     </ResponsiveContainer>
   );
 } 

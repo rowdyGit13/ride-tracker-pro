@@ -31,106 +31,97 @@ export function EarningsChart({ rides, dateRange }: EarningsChartProps) {
     console.log(`Rides count: ${rides.length}`);
     console.log("Date range:", dateRange);
     
-    if (!dateRange?.from || !dateRange?.to) {
-      console.log("No date range selected, using all rides");
-      // If no date range, use all rides grouped by month
-      if (rides.length === 0) {
-        return [];
-      }
-      
-      // Get min and max dates from rides
-      const dates = rides.map(ride => {
-        const parsedDate = parseDate(ride.sessionDate);
-        return parsedDate || new Date(); // Fallback to now if parsing fails
-      });
-      
-      const minDate = new Date(Math.min(...dates.map(d => d.getTime())));
-      const maxDate = new Date(Math.max(...dates.map(d => d.getTime())));
-      
-      console.log("Min date:", minDate, "Max date:", maxDate);
-      
-      // Create an array of months between min and max dates
-      const months = eachMonthOfInterval({
-        start: startOfMonth(minDate),
-        end: endOfMonth(maxDate)
-      });
-      
-      // Group rides by month and calculate totals
-      return months.map(month => {
-        const monthRides = rides.filter(ride => {
-          const rideDate = parseISO(ride.sessionDate.toString());
-          return isSameMonth(rideDate, month);
-        });
-
-        const totalEarnings = monthRides.reduce((sum, ride) => sum + Number(ride.totalAmount), 0);
-        const totalHoursOnline = monthRides.reduce((sum, ride) => sum + Number(ride.timeOnline), 0);
-        const totalHoursBooked = monthRides.reduce((sum, ride) => sum + Number(ride.timeBooked), 0);
-        
-        // Calculate hourly rates
-        const hourlyRateOnline = totalHoursOnline > 0 ? totalEarnings / totalHoursOnline : 0;
-        const hourlyRateBooked = totalHoursBooked > 0 ? totalEarnings / totalHoursBooked : 0;
-
-        return {
-          month: format(month, "MMM yyyy"),
-          earnings: parseFloat(totalEarnings.toFixed(2)),
-          hoursOnline: parseFloat(totalHoursOnline.toFixed(1)),
-          hoursBooked: parseFloat(totalHoursBooked.toFixed(1)),
-          hourlyOnline: parseFloat(hourlyRateOnline.toFixed(2)),
-          hourlyBooked: parseFloat(hourlyRateBooked.toFixed(2))
-        };
-      });
+    if (rides.length === 0) {
+      console.log("No rides to display");
+      return [];
     }
-
-    // Create an array of months in the date range
-    const months = eachMonthOfInterval({
-      start: startOfMonth(dateRange.from),
-      end: endOfMonth(dateRange.to)
-    });
     
-    console.log("Months in range:", months.map(m => format(m, "MMM yyyy")));
-
-    // Group rides by month and calculate totals
-    return months.map(month => {
-      const monthRides = rides.filter(ride => {
-        try {
-          const rideDate = parseISO(ride.sessionDate.toString());
-          return isSameMonth(rideDate, month);
-        } catch (error) {
-          console.error("Error parsing ride date:", error, ride.sessionDate);
-          return false;
+    try {
+      if (!dateRange?.from || !dateRange?.to) {
+        console.log("No date range selected, using all rides");
+        // If no date range, use all rides grouped by month
+        
+        // Get min and max dates from rides with our utility
+        const validDates = rides
+          .map(ride => parseDate(ride.sessionDate))
+          .filter(date => date !== null) as Date[];
+        
+        if (validDates.length === 0) {
+          console.log("No valid dates found in rides");
+          return [];
         }
-      });
-
-      const totalEarnings = monthRides.reduce((sum, ride) => sum + Number(ride.totalAmount), 0);
-      const totalHoursOnline = monthRides.reduce((sum, ride) => sum + Number(ride.timeOnline), 0);
-      const totalHoursBooked = monthRides.reduce((sum, ride) => sum + Number(ride.timeBooked), 0);
-      
-      // Calculate hourly rates
-      const hourlyRateOnline = totalHoursOnline > 0 ? totalEarnings / totalHoursOnline : 0;
-      const hourlyRateBooked = totalHoursBooked > 0 ? totalEarnings / totalHoursBooked : 0;
-
-      return {
-        month: format(month, "MMM yyyy"),
-        earnings: parseFloat(totalEarnings.toFixed(2)),
-        hoursOnline: parseFloat(totalHoursOnline.toFixed(1)),
-        hoursBooked: parseFloat(totalHoursBooked.toFixed(1)),
-        hourlyOnline: parseFloat(hourlyRateOnline.toFixed(2)),
-        hourlyBooked: parseFloat(hourlyRateBooked.toFixed(2))
-      };
-    });
+        
+        const minDate = new Date(Math.min(...validDates.map(d => d.getTime())));
+        const maxDate = new Date(Math.max(...validDates.map(d => d.getTime())));
+        
+        console.log("Min date:", minDate, "Max date:", maxDate);
+        
+        // Create an array of months between min and max dates
+        const months = eachMonthOfInterval({
+          start: startOfMonth(minDate),
+          end: endOfMonth(maxDate)
+        });
+        
+        console.log("Months in range:", months);
+        
+        // Create data for each month
+        return months.map(month => {
+          // Get rides for this month
+          const monthRides = rides.filter(ride => {
+            const rideDate = parseDate(ride.sessionDate);
+            return rideDate && isSameMonth(rideDate, month);
+          });
+          
+          // Calculate total earnings for this month
+          const earnings = monthRides.reduce((sum, ride) => sum + Number(ride.totalAmount), 0);
+          
+          return {
+            month: format(month, 'MMM yyyy'),
+            earnings: earnings
+          };
+        });
+      } else {
+        // If date range is provided, group by month within that range
+        const months = eachMonthOfInterval({
+          start: startOfMonth(dateRange.from),
+          end: endOfMonth(dateRange.to)
+        });
+        
+        console.log("Months in range:", months);
+        
+        // Create data for each month
+        return months.map(month => {
+          // Get rides for this month
+          const monthRides = rides.filter(ride => {
+            const rideDate = parseDate(ride.sessionDate);
+            return rideDate && isSameMonth(rideDate, month);
+          });
+          
+          // Calculate total earnings for this month
+          const earnings = monthRides.reduce((sum, ride) => sum + Number(ride.totalAmount), 0);
+          
+          return {
+            month: format(month, 'MMM yyyy'),
+            earnings: earnings
+          };
+        });
+      }
+    } catch (error) {
+      console.error("Error processing chart data:", error);
+      return [];
+    }
   }, [rides, dateRange]);
 
   // Custom tooltip
   const CustomTooltip = ({ active, payload, label }: TooltipProps<number, string>) => {
     if (active && payload && payload.length) {
       return (
-        <div className="bg-background border border-border p-3 rounded-md shadow-md">
-          <p className="font-medium">{label}</p>
-          <p className="text-sm text-primary">Earnings: ${payload[0]?.value?.toFixed(2)}</p>
-          <p className="text-sm text-muted-foreground">Hours Online: {payload[1]?.value?.toFixed(1)}</p>
-          <p className="text-sm text-muted-foreground">Hours Booked: {payload[2]?.value?.toFixed(1)}</p>
-          <p className="text-sm font-semibold">Hourly (Online): ${payload[3]?.value?.toFixed(2)}</p>
-          <p className="text-sm font-semibold">Hourly (Booked): ${payload[4]?.value?.toFixed(2)}</p>
+        <div className="bg-white p-3 border rounded shadow-sm">
+          <p className="font-medium text-sm mb-1">{label}</p>
+          <p className="text-sm mb-1">
+            <span className="inline-block w-3 h-3 bg-[#10b981] mr-2 rounded-full"></span>
+            Earnings: ${payload[0].value?.toFixed(2)}
+          </p>
         </div>
       );
     }
@@ -156,22 +147,40 @@ export function EarningsChart({ rides, dateRange }: EarningsChartProps) {
 
   return (
     <ResponsiveContainer width="100%" height="100%">
-      <BarChart
-        data={chartData}
-        margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
-      >
-        <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-        <XAxis dataKey="month" />
-        <YAxis 
-          tickFormatter={(value) => `$${value}`}
-          domain={getYAxisDomain()}
-        />
-        <Tooltip content={<CustomTooltip />} />
-        <Legend />
-        <Bar dataKey="earnings" name="Earnings" fill="#3b82f6" radius={[4, 4, 0, 0]} />
-        <Bar dataKey="hoursOnline" name="Hours Online" fill="#10b981" radius={[4, 4, 0, 0]} />
-        <Bar dataKey="hoursBooked" name="Hours Booked" fill="#6366f1" radius={[4, 4, 0, 0]} />
-      </BarChart>
+      {chartData.length > 0 ? (
+        <BarChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 70 }}>
+          <CartesianGrid strokeDasharray="3 3" />
+          <XAxis 
+            dataKey="month" 
+            tick={{ fontSize: 12 }}
+            angle={-45}
+            textAnchor="end"
+            height={70}
+          />
+          <YAxis 
+            tickFormatter={(value) => `$${value}`} 
+            domain={getYAxisDomain()}
+            width={80}
+          />
+          <Tooltip content={<CustomTooltip />} />
+          <Legend />
+          <Bar 
+            dataKey="earnings" 
+            name="Earnings" 
+            fill="#10b981" 
+            radius={[4, 4, 0, 0]}
+          />
+        </BarChart>
+      ) : (
+        <div className="flex flex-col items-center justify-center h-full">
+          <p className="text-gray-500 text-center mb-2">No earnings data available</p>
+          {rides.length === 0 ? (
+            <p className="text-sm text-gray-400">Record your first ride to see data here</p>
+          ) : (
+            <p className="text-sm text-gray-400">Try selecting a different date range</p>
+          )}
+        </div>
+      )}
     </ResponsiveContainer>
   );
 } 
