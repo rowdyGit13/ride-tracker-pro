@@ -31,12 +31,32 @@ export function EarningsChart({ rides, dateRange }: EarningsChartProps) {
     console.log(`Rides count: ${rides.length}`);
     console.log("Date range:", dateRange);
     
-    if (rides.length === 0) {
-      console.log("No rides to display");
-      return [];
-    }
-    
     try {
+      // If we have a date range but no rides, still show the empty months in range
+      if (dateRange?.from && dateRange?.to && rides.length === 0) {
+        console.log("No earnings in date range");
+        
+        // Create an array of months in the date range
+        const months = eachMonthOfInterval({
+          start: startOfMonth(dateRange.from),
+          end: endOfMonth(dateRange.to)
+        });
+        
+        console.log("Empty months in range:", months);
+        
+        // Return empty data for each month
+        return months.map(month => ({
+          month: format(month, 'MMM yyyy'),
+          earnings: 0
+        }));
+      }
+      
+      // If no rides at all, return empty array
+      if (rides.length === 0) {
+        console.log("No rides to display");
+        return [];
+      }
+      
       if (!dateRange?.from || !dateRange?.to) {
         console.log("No date range selected, using all rides");
         // If no date range, use all rides grouped by month

@@ -21,7 +21,7 @@ export default function Home() {
               </p>
               <div className="flex flex-col sm:flex-row gap-4 pt-4">
                 <Button size="lg" asChild>
-                  <Link href="/notes">
+                  <Link href="/login">
                     Get Started <ArrowRight className="ml-2 h-4 w-4" />
                   </Link>
                 </Button>
@@ -106,7 +106,7 @@ export default function Home() {
             Join thousands of drivers who are increasing their earnings by up to 30% with Ride Tracker Pro.
           </p>
           <Button size="lg" variant="secondary" asChild>
-            <Link href="/notes">Start Tracking Now</Link>
+            <Link href="/login">Start Tracking Now</Link>
           </Button>
         </div>
       </section>

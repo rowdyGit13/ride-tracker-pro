@@ -31,12 +31,40 @@ export function ExpensesChart({ expenses, dateRange }: ExpensesChartProps) {
     console.log(`Expenses count: ${expenses.length}`);
     console.log("Date range:", dateRange);
     
-    if (expenses.length === 0) {
-      console.log("No expenses to display");
-      return [];
-    }
-    
     try {
+      // If we have a date range but no expenses, still show the empty months in range
+      if (dateRange?.from && dateRange?.to && expenses.length === 0) {
+        console.log("Date range selected but no expenses - showing empty months");
+        
+        // Create an array of months in the date range
+        const months = eachMonthOfInterval({
+          start: startOfMonth(dateRange.from),
+          end: endOfMonth(dateRange.to)
+        });
+        
+        console.log("Empty months in range:", months);
+        
+        // Return empty data for each month
+        return months.map(month => ({
+          month: format(month, 'MMM yyyy'),
+          fuel: 0,
+          maintenance: 0,
+          insurance: 0,
+          car_payment: 0,
+          cleaning: 0,
+          parking: 0,
+          tolls: 0,
+          other: 0,
+          total: 0
+        }));
+      }
+      
+      // If no expenses at all, return empty array
+      if (expenses.length === 0) {
+        console.log("No expenses to display");
+        return [];
+      }
+      
       if (!dateRange?.from || !dateRange?.to) {
         console.log("No date range selected, using all expenses");
         

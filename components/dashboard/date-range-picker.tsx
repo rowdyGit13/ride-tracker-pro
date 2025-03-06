@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { CalendarIcon } from "lucide-react";
+import { CalendarIcon, X } from "lucide-react";
 import { DateRange } from "react-day-picker";
 import { format, subMonths, startOfMonth, endOfMonth } from "date-fns";
 import { cn } from "@/lib/utils";
@@ -26,6 +26,11 @@ interface DateRangePickerProps {
 }
 
 export function DateRangePicker({ dateRange, setDateRange }: DateRangePickerProps) {
+  // State to track if we're selecting the start or end date
+  const [selectingMode, setSelectingMode] = React.useState<'start' | 'end'>('start');
+  const [popoverOpen, setPopoverOpen] = React.useState(false);
+  const [tempRange, setTempRange] = React.useState<DateRange | undefined>(dateRange);
+  
   // Predefined date ranges
   const handlePredefinedRange = (value: string) => {
     const today = new Date();
@@ -65,6 +70,56 @@ export function DateRangePicker({ dateRange, setDateRange }: DateRangePickerProp
     console.log("Date range selected:", value, dateRange);
   };
 
+  // Custom date selection handler
+  const handleSelect = (range: DateRange | undefined) => {
+    setTempRange(range);
+    
+    // Switch mode to end date selection after selecting start date
+    if (range?.from && !range.to && selectingMode === 'start') {
+      setSelectingMode('end');
+    }
+    
+  };
+
+  // Reset the selection
+  const resetSelection = () => {
+    setTempRange(undefined);
+    setSelectingMode('start');
+  };
+
+  // Apply the current selection
+  const applySelection = () => {
+    if (tempRange?.from) {
+      setDateRange(tempRange);
+      setPopoverOpen(false);
+      setSelectingMode('start'); // Reset for next time
+    }
+  };
+
+  // Reset button in the popover
+  const ResetButton = () => (
+    <div className="p-3 border-t border-gray-200 flex justify-between">
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={resetSelection}
+        className="text-gray-500 hover:text-gray-700"
+      >
+        <X className="h-4 w-4 mr-2" />
+        Reset
+      </Button>
+      
+      <Button
+        variant="default"
+        size="sm"
+        onClick={applySelection}
+        disabled={!tempRange?.from}
+      >
+        Apply
+      </Button>
+    </div>
+  );
+
   return (
     <div className="flex flex-col sm:flex-row gap-2 items-center">
       <Select onValueChange={handlePredefinedRange} defaultValue="last-3-months">
@@ -81,7 +136,7 @@ export function DateRangePicker({ dateRange, setDateRange }: DateRangePickerProp
       </Select>
 
       <div className="grid gap-2">
-        <Popover>
+        <Popover open={popoverOpen} onOpenChange={setPopoverOpen}>
           <PopoverTrigger asChild>
             <Button
               id="date"
@@ -107,14 +162,23 @@ export function DateRangePicker({ dateRange, setDateRange }: DateRangePickerProp
             </Button>
           </PopoverTrigger>
           <PopoverContent className="w-auto p-0" align="start">
+            <div className="p-3 border-b border-gray-200">
+              <div className="space-y-1">
+                <h4 className="text-sm font-medium">Select Date Range</h4>
+                <p className="text-xs text-gray-500">
+                  {selectingMode === 'start' ? 'Select start date' : 'Select end date'}
+                </p>
+              </div>
+            </div>
             <Calendar
               initialFocus
               mode="range"
-              defaultMonth={dateRange?.from}
-              selected={dateRange}
-              onSelect={setDateRange}
+              defaultMonth={tempRange?.from || dateRange?.from || new Date()}
+              selected={tempRange}
+              onSelect={handleSelect}
               numberOfMonths={2}
             />
+            <ResetButton />
           </PopoverContent>
         </Popover>
       </div>

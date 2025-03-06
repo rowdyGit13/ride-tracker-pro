@@ -18,7 +18,7 @@ function LoginContent() {
 
   return (
     <SignIn
-      forceRedirectUrl="/notes"
+      forceRedirectUrl="/dashboard"
       appearance={{ baseTheme: theme === "dark" ? dark : undefined }}
     />
   );

@@ -266,6 +266,17 @@ export function DashboardClient({ rides, expenses, vehicles }: DashboardClientPr
   // Call the debug function
   addDebugPanel();
 
+  // React to date range changes
+  useEffect(() => {
+    console.log("Date range changed:", dateRange);
+    
+    // If date range is undefined, ensure we're showing all data
+    if (!dateRange) {
+      // No need to filter the data, just log it
+      console.log("Date range cleared, showing all data");
+    }
+  }, [dateRange]);
+
   // Create a useEffect to handle fallback to all data if filters result in no data
   useEffect(() => {
     if (rides.length > 0 && filteredRides.length === 0) {
@@ -276,7 +287,6 @@ export function DashboardClient({ rides, expenses, vehicles }: DashboardClientPr
       console.log("No expenses match the filter, showing a warning");
     }
   }, [rides, filteredRides, expenses, filteredExpenses]);
-
 
   return (
     <div className="space-y-6">
@@ -308,8 +318,8 @@ export function DashboardClient({ rides, expenses, vehicles }: DashboardClientPr
             </CardHeader>
             <CardContent className="h-[400px]">
               <EarningsChart 
-                rides={filteredRides.length > 0 ? filteredRides : rides} 
-                dateRange={filteredRides.length > 0 ? dateRange : undefined} 
+                rides={filteredRides} 
+                dateRange={dateRange} 
               />
             </CardContent>
           </Card>
@@ -324,8 +334,8 @@ export function DashboardClient({ rides, expenses, vehicles }: DashboardClientPr
             </CardHeader>
             <CardContent className="h-[400px]">
               <ExpensesChart 
-                expenses={filteredExpenses.length > 0 ? filteredExpenses : expenses} 
-                dateRange={filteredExpenses.length > 0 ? dateRange : undefined} 
+                expenses={filteredExpenses} 
+                dateRange={dateRange} 
               />
             </CardContent>
           </Card>
@@ -341,8 +351,8 @@ export function DashboardClient({ rides, expenses, vehicles }: DashboardClientPr
             <CardContent className="h-[400px]">
               <VehicleValueChart 
                 vehicles={vehicles} 
-                rides={filteredRides.length > 0 ? filteredRides : rides} 
-                expenses={filteredExpenses.length > 0 ? filteredExpenses : expenses} 
+                rides={filteredRides} 
+                expenses={filteredExpenses} 
               />
             </CardContent>
           </Card>
