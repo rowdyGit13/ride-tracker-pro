@@ -134,14 +134,42 @@ export function EarningsChart({ rides, dateRange }: EarningsChartProps) {
 
   // Custom tooltip
   const CustomTooltip = ({ active, payload, label }: TooltipProps<number, string>) => {
-    if (active && payload && payload.length) {
+    if (active && payload && payload.length > 0) {
+      // Log payload for debugging
+      console.log("Earnings tooltip payload:", payload);
+      
+      const earningsValue = payload[0]?.value ? Number(payload[0].value) : 0;
+      
       return (
-        <div className="bg-white p-3 border rounded shadow-sm">
-          <p className="font-medium text-sm mb-1">{label}</p>
-          <p className="text-sm mb-1">
-            <span className="inline-block w-3 h-3 bg-[#10b981] mr-2 rounded-full"></span>
-            Earnings: ${payload[0].value?.toFixed(2)}
-          </p>
+        <div 
+          style={{
+            backgroundColor: 'white',
+            padding: '10px',
+            border: '1px solid #ccc',
+            boxShadow: '0 2px 4px rgba(0,0,0,0.15)',
+            borderRadius: '4px',
+            color: 'black',
+            fontSize: '13px',
+            fontWeight: 'normal'
+          }}
+        >
+          <div style={{ 
+            marginBottom: '8px', 
+            fontWeight: 'bold', 
+            color: '#333',
+            fontSize: '14px'
+          }}>
+            {label}
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <div style={{ 
+              width: '10px', 
+              height: '10px', 
+              backgroundColor: '#10b981', 
+              borderRadius: '50%' 
+            }}></div>
+            <div>Earnings: <strong>${earningsValue.toFixed(2)}</strong></div>
+          </div>
         </div>
       );
     }
@@ -182,13 +210,21 @@ export function EarningsChart({ rides, dateRange }: EarningsChartProps) {
             domain={getYAxisDomain()}
             width={80}
           />
-          <Tooltip content={<CustomTooltip />} />
+          <Tooltip 
+            content={<CustomTooltip />} 
+            wrapperStyle={{ 
+              zIndex: 1000,
+              visibility: 'visible',
+              position: 'absolute'
+            }}
+            cursor={{ fill: 'rgba(200, 200, 200, 0.2)' }}
+            isAnimationActive={false}
+          />
           <Legend />
           <Bar 
             dataKey="earnings" 
             name="Earnings" 
-            fill="#10b981" 
-            radius={[4, 4, 0, 0]}
+            fill="#10b981"
           />
         </BarChart>
       ) : (

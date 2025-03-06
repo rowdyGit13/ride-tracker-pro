@@ -186,26 +186,79 @@ export function ExpensesChart({ expenses, dateRange }: ExpensesChartProps) {
 
   // Custom tooltip
   const CustomTooltip = ({ active, payload, label }: TooltipProps<number, string>) => {
-    if (active && payload && payload.length) {
-      // Filter out zero values
-      const nonZeroPayload = payload.filter(entry => entry.value && entry.value > 0);
+    if (active && payload && payload.length > 0) {
+      console.log("Expenses tooltip payload:", payload);
+      
+      // Get all non-zero, non-total values
+      const validEntries = payload.filter(entry => 
+        entry && 
+        entry.dataKey !== 'total' && 
+        entry.value && 
+        Number(entry.value) > 0
+      );
+      
+      // Calculate total
+      const total = validEntries.reduce((sum, entry) => 
+        sum + (Number(entry.value) || 0), 0
+      );
       
       return (
-        <div className="bg-white p-3 border rounded shadow-sm">
-          <p className="font-medium text-sm mb-1">{label}</p>
-          {nonZeroPayload.map((entry, index) => (
-            <p key={index} className="text-sm mb-1">
-              <span 
-                className="inline-block w-3 h-3 mr-2 rounded-full" 
-                style={{ backgroundColor: entry.color }}
-              ></span>
-              {entry.name}: ${entry.value?.toFixed(2) || '0.00'}
-            </p>
-          ))}
-          {payload.find(p => p.dataKey === 'total' && p.value) && (
-            <p className="text-sm font-semibold mt-1 border-t pt-1">
-              Total: ${payload.find(p => p.dataKey === 'total')?.value?.toFixed(2) || '0.00'}
-            </p>
+        <div
+          style={{
+            backgroundColor: 'white',
+            padding: '10px',
+            border: '1px solid #ccc',
+            boxShadow: '0 2px 4px rgba(0,0,0,0.15)',
+            borderRadius: '4px',
+            color: 'black',
+            fontSize: '13px',
+            fontWeight: 'normal'
+          }}
+        >
+          <div style={{ 
+            marginBottom: '8px', 
+            fontWeight: 'bold', 
+            color: '#333',
+            fontSize: '14px'
+          }}>
+            {label}
+          </div>
+          
+          {validEntries.length > 0 ? (
+            validEntries.map((entry, index) => (
+              <div 
+                key={index} 
+                style={{ 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  gap: '8px',
+                  marginBottom: '5px'
+                }}
+              >
+                <div style={{ 
+                  width: '10px', 
+                  height: '10px', 
+                  backgroundColor: entry.color, 
+                  borderRadius: '50%' 
+                }}></div>
+                <div>{entry.name}: <strong>${Number(entry.value).toFixed(2)}</strong></div>
+              </div>
+            ))
+          ) : (
+            <div>No expenses in this period</div>
+          )}
+          
+          {validEntries.length > 0 && (
+            <div 
+              style={{ 
+                marginTop: '8px', 
+                paddingTop: '8px', 
+                borderTop: '1px solid #eee',
+                fontWeight: 'bold'
+              }}
+            >
+              Total: ${total.toFixed(2)}
+            </div>
           )}
         </div>
       );
@@ -250,7 +303,6 @@ export function ExpensesChart({ expenses, dateRange }: ExpensesChartProps) {
         <BarChart 
           data={chartData} 
           margin={{ top: 20, right: 30, left: 20, bottom: 70 }}
-          stackOffset="sign"
         >
           <CartesianGrid strokeDasharray="3 3" />
           <XAxis 
@@ -265,16 +317,25 @@ export function ExpensesChart({ expenses, dateRange }: ExpensesChartProps) {
             domain={getYAxisDomain()}
             width={80}
           />
-          <Tooltip content={<CustomTooltip />} />
+          <Tooltip 
+            content={<CustomTooltip />} 
+            wrapperStyle={{ 
+              zIndex: 1000,
+              visibility: 'visible',
+              position: 'absolute'
+            }}
+            cursor={{ fill: 'rgba(200, 200, 200, 0.2)' }}
+            isAnimationActive={false}
+          />
           <Legend />
-          <Bar dataKey="fuel" name="Fuel" stackId="a" fill="#3b82f6" radius={[0, 0, 0, 0]} />
-          <Bar dataKey="maintenance" name="Maintenance" stackId="a" fill="#10b981" radius={[0, 0, 0, 0]} />
-          <Bar dataKey="insurance" name="Insurance" stackId="a" fill="#f59e0b" radius={[0, 0, 0, 0]} />
-          <Bar dataKey="car_payment" name="Car Payment" stackId="a" fill="#ef4444" radius={[0, 0, 0, 0]} />
-          <Bar dataKey="cleaning" name="Cleaning" stackId="a" fill="#8b5cf6" radius={[0, 0, 0, 0]} />
-          <Bar dataKey="parking" name="Parking" stackId="a" fill="#ec4899" radius={[0, 0, 0, 0]} />
-          <Bar dataKey="tolls" name="Tolls" stackId="a" fill="#64748b" radius={[0, 0, 0, 0]} />
-          <Bar dataKey="other" name="Other" stackId="a" fill="#9ca3af" radius={[0, 0, 0, 0]} />
+          <Bar dataKey="fuel" name="Fuel" stackId="a" fill="#3b82f6" />
+          <Bar dataKey="maintenance" name="Maintenance" stackId="a" fill="#10b981" />
+          <Bar dataKey="insurance" name="Insurance" stackId="a" fill="#f59e0b" />
+          <Bar dataKey="car_payment" name="Car Payment" stackId="a" fill="#ef4444" />
+          <Bar dataKey="cleaning" name="Cleaning" stackId="a" fill="#8b5cf6" />
+          <Bar dataKey="parking" name="Parking" stackId="a" fill="#ec4899" />
+          <Bar dataKey="tolls" name="Tolls" stackId="a" fill="#64748b" />
+          <Bar dataKey="other" name="Other" stackId="a" fill="#9ca3af" />
         </BarChart>
       ) : (
         <div className="flex flex-col items-center justify-center h-full">
