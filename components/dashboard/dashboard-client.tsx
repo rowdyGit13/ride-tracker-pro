@@ -4,7 +4,7 @@ import { SelectRide } from "@/db/schema/rides-schema";
 import { SelectExpense } from "@/db/schema/expenses-schema";
 import { SelectVehicle } from "@/db/schema/vehicles-schema";
 import { useState, useMemo, useEffect } from "react";
-import { parseISO, isWithinInterval, subMonths, addDays } from "date-fns";
+import { isWithinInterval, subMonths, addDays } from "date-fns";
 import { DateRange } from "react-day-picker";
 import { DateRangePicker } from "@/components/dashboard/date-range-picker";
 import { SummaryCards } from "@/components/dashboard/summary-cards";
@@ -277,30 +277,6 @@ export function DashboardClient({ rides, expenses, vehicles }: DashboardClientPr
     }
   }, [rides, filteredRides, expenses, filteredExpenses]);
 
-  // Show data warning banner if needed
-  const renderDataWarning = () => {
-    if ((rides.length > 0 && filteredRides.length === 0) || 
-        (expenses.length > 0 && filteredExpenses.length === 0)) {
-      return (
-        <div className="p-4 mb-4 border border-yellow-300 bg-yellow-50 rounded-lg">
-          <h3 className="font-semibold text-yellow-800">Data Filter Warning</h3>
-          <p className="text-sm text-yellow-700">
-            Some of your data couldn't be displayed with the current date filter. This is likely due to 
-            date format issues. Try selecting "All Time" in the date picker to see all your data.
-          </p>
-          <Button 
-            variant="outline" 
-            size="sm"
-            className="mt-2 bg-yellow-100 border-yellow-300 text-yellow-800 hover:bg-yellow-200"
-            onClick={() => setDateRange(undefined)}
-          >
-            Show All Data
-          </Button>
-        </div>
-      );
-    }
-    return null;
-  };
 
   return (
     <div className="space-y-6">
@@ -313,8 +289,6 @@ export function DashboardClient({ rides, expenses, vehicles }: DashboardClientPr
         </div>
         <DateRangePicker dateRange={dateRange} setDateRange={setDateRange} />
       </div>
-
-      {renderDataWarning()}
 
       <SummaryCards metrics={summaryMetrics} />
 
