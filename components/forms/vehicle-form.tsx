@@ -24,7 +24,6 @@ const vehicleFormSchema = z.object({
   make: z.string().min(1, "Make is required"),
   model: z.string().min(1, "Model is required"),
   year: z.coerce.number().int().min(1900, "Year must be at least 1900").max(new Date().getFullYear() + 1, `Year must be at most ${new Date().getFullYear() + 1}`),
-  licensePlate: z.string().optional(),
   color: z.string().optional(),
   nickname: z.string().optional(),
   isActive: z.coerce.number().default(1)
@@ -48,7 +47,6 @@ export function VehicleForm({ initialData, closeDialog }: VehicleFormProps) {
       make: initialData.make,
       model: initialData.model,
       year: initialData.year,
-      licensePlate: initialData.licensePlate || "",
       color: initialData.color || "",
       nickname: initialData.nickname || "",
       isActive: initialData.isActive
@@ -56,7 +54,6 @@ export function VehicleForm({ initialData, closeDialog }: VehicleFormProps) {
       make: "",
       model: "",
       year: new Date().getFullYear(),
-      licensePlate: "",
       color: "",
       nickname: "",
       isActive: 1
@@ -159,19 +156,6 @@ export function VehicleForm({ initialData, closeDialog }: VehicleFormProps) {
                 <FormLabel>Year</FormLabel>
                 <FormControl>
                   <Input type="number" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="licensePlate"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>License Plate</FormLabel>
-                <FormControl>
-                  <Input placeholder="ABC123" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>

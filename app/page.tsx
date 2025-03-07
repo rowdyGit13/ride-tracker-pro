@@ -13,20 +13,17 @@ export default function Home() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
             <div className="space-y-6">
               <h1 className="text-4xl md:text-6xl font-bold tracking-tight">
-                Track Your Rides. <br />
-                <span className="text-primary">Maximize Your Earnings.</span>
+              <span className="text-primary">Your time is valuable.</span><br />
+                <span className="text-primary">Know your true net profits.</span>
               </h1>
               <p className="text-lg text-muted-foreground max-w-md">
-                The complete solution for rideshare drivers to track earnings, expenses, and optimize performance.
+                Easily track earnings and expenses to learn the value returned for your time and effort.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 pt-4">
                 <Button size="lg" asChild>
                   <Link href="/login">
                     Get Started <ArrowRight className="ml-2 h-4 w-4" />
                   </Link>
-                </Button>
-                <Button size="lg" variant="outline" asChild>
-                  <Link href="#features">Learn More</Link>
                 </Button>
               </div>
             </div>
@@ -51,7 +48,7 @@ export default function Home() {
           <div className="text-center mb-16">
             <h2 className="text-3xl font-bold mb-4">Everything You Need</h2>
             <p className="text-muted-foreground max-w-2xl mx-auto">
-              Designed specifically for rideshare drivers to simplify tracking and maximize profitability.
+              Designed specifically for rideshare drivers to simplify tracking and visualization.
             </p>
           </div>
 
@@ -71,21 +68,6 @@ export default function Home() {
                 icon: <ChartBar className="h-10 w-10 text-primary" />,
                 title: "Performance Analytics",
                 description: "Visualize your performance with intuitive charts and identify opportunities to increase earnings."
-              },
-              {
-                icon: <Clock className="h-10 w-10 text-primary" />,
-                title: "Time Optimization",
-                description: "Analyze your most profitable hours and locations to optimize your driving schedule."
-              },
-              {
-                icon: <MapPin className="h-10 w-10 text-primary" />,
-                title: "Location Insights",
-                description: "Discover high-demand areas and optimize your routes for maximum efficiency."
-              },
-              {
-                icon: <Image src="/logo-small.svg" alt="Logo" width={40} height={40} className="text-primary" />,
-                title: "Multi-Platform Support",
-                description: "Works with all major rideshare platforms including Uber, Lyft, and delivery services."
               }
             ].map((feature, index) => (
               <div key={index} className="bg-card p-6 rounded-xl shadow-sm border border-border hover:shadow-md transition-shadow">
@@ -95,19 +77,6 @@ export default function Home() {
               </div>
             ))}
           </div>
-        </div>
-      </section>
-
-      {/* CTA Section */}
-      <section className="py-20 bg-primary text-primary-foreground">
-        <div className="container mx-auto px-4 text-center">
-          <h2 className="text-3xl font-bold mb-6">Ready to optimize your rideshare business?</h2>
-          <p className="text-primary-foreground/80 max-w-2xl mx-auto mb-8">
-            Join thousands of drivers who are increasing their earnings by up to 30% with Ride Tracker Pro.
-          </p>
-          <Button size="lg" variant="secondary" asChild>
-            <Link href="/login">Start Tracking Now</Link>
-          </Button>
         </div>
       </section>
     </div>

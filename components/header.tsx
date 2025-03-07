@@ -39,14 +39,6 @@ export default function Header() {
               </Link>
             </NavigationMenuItem>
             
-            <NavigationMenuItem>
-              <Link href="/pricing" legacyBehavior passHref>
-                <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                  Pricing
-                </NavigationMenuLink>
-              </Link>
-            </NavigationMenuItem>
-            
             <SignedIn>
               <NavigationMenuItem>
                 <Link href="/dashboard" legacyBehavior passHref>
@@ -110,14 +102,6 @@ export default function Header() {
               onClick={toggleMenu}
             >
               Home
-            </Link>
-            
-            <Link
-              href="/pricing"
-              className="flex items-center py-2 text-sm font-medium hover:text-primary"
-              onClick={toggleMenu}
-            >
-              Pricing
             </Link>
             
             <SignedIn>
