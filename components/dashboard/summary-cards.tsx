@@ -55,7 +55,7 @@ export function SummaryCards({ metrics }: SummaryCardsProps) {
         <CardContent>
           <div className="text-2xl font-bold">{formatCurrency(metrics.totalExpenses)}</div>
           <p className="text-xs text-muted-foreground">
-            All expenses in period
+            Including depreciation
           </p>
         </CardContent>
       </Card>

@@ -10,6 +10,7 @@ import { DateRangePicker } from "@/components/dashboard/date-range-picker";
 import { SummaryCards } from "@/components/dashboard/summary-cards";
 import { EarningsChart } from "@/components/dashboard/earnings-chart";
 import { ExpensesChart } from "@/components/dashboard/expenses-chart";
+import { NetProfitChart } from "@/components/dashboard/net-profit-chart";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -196,9 +197,22 @@ export function DashboardClient({ rides, expenses, vehicles }: DashboardClientPr
       return sum + Number(ride.totalAmount);
     }, 0);
 
-    const totalExpenses = filteredExpenses.reduce((sum, expense) => {
+    // Calculate total regular expenses
+    const totalRegularExpenses = filteredExpenses.reduce((sum, expense) => {
       return sum + Number(expense.amount);
     }, 0);
+    
+    // Calculate depreciation from miles driven (5 cents per mile)
+    const totalDepreciation = filteredRides.reduce((sum, ride) => {
+      const milesOnline = Number(ride.distanceOnline || 0);
+      if (!isNaN(milesOnline)) {
+        return sum + (milesOnline * 0.05);
+      }
+      return sum;
+    }, 0);
+    
+    // Add depreciation to expenses
+    const totalExpenses = totalRegularExpenses + totalDepreciation;
 
     const netProfit = totalEarnings - totalExpenses;
     const totalSessions = filteredRides.length;
@@ -226,6 +240,8 @@ export function DashboardClient({ rides, expenses, vehicles }: DashboardClientPr
     console.log("First filtered expense:", filteredExpenses[0] || "None");
     console.log("Summary metrics:", {
       totalEarnings,
+      totalRegularExpenses,
+      totalDepreciation,
       totalExpenses,
       netProfit,
       totalSessions,
@@ -305,6 +321,7 @@ export function DashboardClient({ rides, expenses, vehicles }: DashboardClientPr
         <TabsList>
           <TabsTrigger value="earnings">Earnings</TabsTrigger>
           <TabsTrigger value="expenses">Expenses</TabsTrigger>
+          <TabsTrigger value="profit">Profit</TabsTrigger>
         </TabsList>
         <TabsContent value="earnings" className="space-y-4">
           <Card>
@@ -335,6 +352,23 @@ export function DashboardClient({ rides, expenses, vehicles }: DashboardClientPr
                 expenses={filteredExpenses} 
                 dateRange={dateRange}
                 rides={filteredRides}
+              />
+            </CardContent>
+          </Card>
+        </TabsContent>
+        <TabsContent value="profit" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Profit Overview</CardTitle>
+              <CardDescription>
+                Monthly breakdown of your net profit (earnings minus expenses)
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="h-[400px]">
+              <NetProfitChart 
+                rides={filteredRides} 
+                expenses={filteredExpenses}
+                dateRange={dateRange}
               />
             </CardContent>
           </Card>

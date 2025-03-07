@@ -13,6 +13,9 @@
 # testing
 /coverage
 
+# personal documents
+/personal_documents
+
 # next.js
 /.next/
 /out/

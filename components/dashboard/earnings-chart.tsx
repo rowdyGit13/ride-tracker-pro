@@ -178,11 +178,36 @@ export function EarningsChart({ rides, dateRange }: EarningsChartProps) {
 
   // Calculate domain for Y axis
   const getYAxisDomain = (): AxisDomain => {
-    if (chartData.length === 0) return [0, 10];
+    if (chartData.length === 0) return [0, 100];
     
     const maxValue = Math.max(...chartData.map(d => d.earnings));
-    // Add 10% padding to the top
-    return [0, Math.ceil(maxValue * 1.1)];
+    // Round up to the next multiple of 10 and ensure it's at least $10 greater than max value
+    const roundedMax = Math.ceil((maxValue + 10) / 10) * 10;
+    return [0, roundedMax];
+  };
+
+  // Generate evenly spaced ticks for the Y axis
+  const getYAxisTicks = (): number[] => {
+    if (chartData.length === 0) return [0, 20, 40, 60, 80, 100];
+    
+    const maxValue = Math.max(...chartData.map(d => d.earnings));
+    // Round up to the next multiple of 10 and ensure it's at least $10 greater than max value
+    const roundedMax = Math.ceil((maxValue + 10) / 10) * 10;
+    
+    // Target 5-6 tick marks total for aesthetically pleasing chart
+    const preferredTickCount = 5;
+    
+    // Calculate the ideal interval (must be divisible by 10)
+    let tickInterval = Math.ceil(roundedMax / preferredTickCount / 10) * 10;
+    if (tickInterval === 0) tickInterval = 10;
+    
+    // Create ticks in calculated interval
+    const ticks = [];
+    for (let i = 0; i <= roundedMax; i += tickInterval) {
+      ticks.push(i);
+    }
+    
+    return ticks;
   };
 
   if (chartData.length === 0) {
@@ -209,6 +234,14 @@ export function EarningsChart({ rides, dateRange }: EarningsChartProps) {
             tickFormatter={(value) => `$${value}`} 
             domain={getYAxisDomain()}
             width={80}
+            ticks={getYAxisTicks()}
+            allowDecimals={false}
+            scale="linear"
+            allowDataOverflow={false}
+            includeHidden={true}
+            padding={{ bottom: 0 }}
+            axisLine={true}
+            minTickGap={0}
           />
           <Tooltip 
             content={<CustomTooltip />} 
