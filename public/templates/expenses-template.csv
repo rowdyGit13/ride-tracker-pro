@@ -1,0 +1,9 @@
+vehicleId,expenseType,date,amount,description
+vehicle_id_here,fuel,2023-11-01,45.75,"Regular fuel fill-up"
+vehicle_id_here,maintenance,2023-11-10,125.50,"Oil change and filter replacement"
+vehicle_id_here,insurance,2023-11-15,180.00,"Monthly insurance payment"
+vehicle_id_here,car_payment,2023-11-01,350.00,"Monthly car payment"
+vehicle_id_here,cleaning,2023-11-05,25.00,"Car wash and interior cleaning"
+vehicle_id_here,parking,2023-11-12,15.00,"Airport parking"
+vehicle_id_here,tolls,2023-11-18,8.50,"Highway tolls"
+vehicle_id_here,other,2023-11-20,35.00,"Phone mount and charger" 

@@ -1,11 +1,11 @@
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { Car, DollarSign, MapPin } from "lucide-react";
+import { Car, DollarSign, MapPin, Upload } from "lucide-react";
 
 export default function FormsPage() {
   return (
-    <div className="grid gap-6 md:grid-cols-3">
+    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
       <Card className="flex flex-col">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -71,6 +71,29 @@ export default function FormsPage() {
         <CardFooter>
           <Button asChild className="w-full">
             <Link href="/forms/expenses/new">Add New Expense</Link>
+          </Button>
+        </CardFooter>
+      </Card>
+
+      <Card className="flex flex-col">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Upload className="h-5 w-5 text-primary" />
+            Import Data
+          </CardTitle>
+          <CardDescription>
+            Import data in bulk
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="flex-1">
+          <p className="text-sm text-muted-foreground">
+            Bulk import your rides, vehicles, and expenses data using CSV 
+            or JSON files. Save time by importing multiple records at once.
+          </p>
+        </CardContent>
+        <CardFooter>
+          <Button asChild className="w-full">
+            <Link href="/forms/import">Import Data</Link>
           </Button>
         </CardFooter>
       </Card>
