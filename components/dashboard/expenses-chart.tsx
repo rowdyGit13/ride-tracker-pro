@@ -17,24 +17,27 @@ import {
 } from "recharts";
 import { AxisDomain } from "recharts/types/util/types";
 import { parseDate } from "@/lib/utils";
+import { SelectRide } from "@/db/schema/rides-schema";
 
 interface ExpensesChartProps {
   expenses: SelectExpense[];
   dateRange: DateRange | undefined;
+  rides?: SelectRide[]; // Add rides as an optional prop for depreciation calculation
 }
 
-export function ExpensesChart({ expenses, dateRange }: ExpensesChartProps) {
+export function ExpensesChart({ expenses, dateRange, rides = [] }: ExpensesChartProps) {
   // Group expenses by type for the chart
   const chartData = useMemo(() => {
     // Debug log
     console.log("ExpensesChart - Preparing chart data");
     console.log(`Expenses count: ${expenses.length}`);
+    console.log(`Rides count: ${rides.length}`);
     console.log("Date range:", dateRange);
     
     try {
       // If we have a date range but no expenses, still show the empty months in range
-      if (dateRange?.from && dateRange?.to && expenses.length === 0) {
-        console.log("Date range selected but no expenses - showing empty months");
+      if (dateRange?.from && dateRange?.to && expenses.length === 0 && rides.length === 0) {
+        console.log("Date range selected but no expenses or rides - showing empty months");
         
         // Create an array of months in the date range
         const months = eachMonthOfInterval({
@@ -55,26 +58,33 @@ export function ExpensesChart({ expenses, dateRange }: ExpensesChartProps) {
           parking: 0,
           tolls: 0,
           other: 0,
+          depreciation: 0, // Add depreciation category
           total: 0
         }));
       }
       
-      // If no expenses at all, return empty array
-      if (expenses.length === 0) {
-        console.log("No expenses to display");
+      // If no expenses and no rides at all, return empty array
+      if (expenses.length === 0 && rides.length === 0) {
+        console.log("No expenses or rides to display");
         return [];
       }
       
       if (!dateRange?.from || !dateRange?.to) {
-        console.log("No date range selected, using all expenses");
+        console.log("No date range selected, using all expenses and rides");
         
-        // Get min and max dates from expenses with our utility
-        const validDates = expenses
+        // Get min and max dates from expenses and rides with our utility
+        const validExpenseDates = expenses
           .map(expense => parseDate(expense.date))
           .filter(date => date !== null) as Date[];
         
+        const validRideDates = rides
+          .map(ride => parseDate(ride.sessionDate))
+          .filter(date => date !== null) as Date[];
+        
+        const validDates = [...validExpenseDates, ...validRideDates];
+        
         if (validDates.length === 0) {
-          console.log("No valid dates found in expenses");
+          console.log("No valid dates found in expenses or rides");
           return [];
         }
         
@@ -104,6 +114,7 @@ export function ExpensesChart({ expenses, dateRange }: ExpensesChartProps) {
             parking: 0,
             tolls: 0,
             other: 0,
+            depreciation: 0, // Add depreciation category
             total: 0
           };
           
@@ -122,6 +133,25 @@ export function ExpensesChart({ expenses, dateRange }: ExpensesChartProps) {
               monthData.total += amount;
             }
           });
+          
+          // Calculate depreciation based on miles driven in this month
+          const monthRides = rides.filter(ride => {
+            const rideDate = parseDate(ride.sessionDate);
+            return rideDate && isSameMonth(rideDate, month);
+          });
+          
+          let totalMilesOnline = 0;
+          monthRides.forEach(ride => {
+            const miles = Number(ride.distanceOnline || 0);
+            if (!isNaN(miles)) {
+              totalMilesOnline += miles;
+            }
+          });
+          
+          // Calculate depreciation at 5 cents per mile
+          const depreciation = totalMilesOnline * 0.05;
+          monthData.depreciation = Number(depreciation.toFixed(2));
+          monthData.total += monthData.depreciation;
           
           return monthData;
         });
@@ -147,6 +177,7 @@ export function ExpensesChart({ expenses, dateRange }: ExpensesChartProps) {
             parking: 0,
             tolls: 0,
             other: 0,
+            depreciation: 0, // Add depreciation category
             total: 0
           };
           
@@ -166,6 +197,25 @@ export function ExpensesChart({ expenses, dateRange }: ExpensesChartProps) {
             }
           });
           
+          // Calculate depreciation based on miles driven in this month
+          const monthRides = rides.filter(ride => {
+            const rideDate = parseDate(ride.sessionDate);
+            return rideDate && isSameMonth(rideDate, month);
+          });
+          
+          let totalMilesOnline = 0;
+          monthRides.forEach(ride => {
+            const miles = Number(ride.distanceOnline || 0);
+            if (!isNaN(miles)) {
+              totalMilesOnline += miles;
+            }
+          });
+          
+          // Calculate depreciation at 5 cents per mile
+          const depreciation = totalMilesOnline * 0.05;
+          monthData.depreciation = Number(depreciation.toFixed(2));
+          monthData.total += monthData.depreciation;
+          
           return monthData;
         });
       }
@@ -173,7 +223,7 @@ export function ExpensesChart({ expenses, dateRange }: ExpensesChartProps) {
       console.error("Error processing expenses chart data:", error);
       return [];
     }
-  }, [expenses, dateRange]);
+  }, [expenses, rides, dateRange]);
 
   // Get unique expense types for chart configuration
   const expenseTypes = useMemo(() => {
@@ -336,12 +386,13 @@ export function ExpensesChart({ expenses, dateRange }: ExpensesChartProps) {
           <Bar dataKey="parking" name="Parking" stackId="a" fill="#ec4899" />
           <Bar dataKey="tolls" name="Tolls" stackId="a" fill="#64748b" />
           <Bar dataKey="other" name="Other" stackId="a" fill="#9ca3af" />
+          <Bar dataKey="depreciation" name="Depreciation" stackId="a" fill="#374151" />
         </BarChart>
       ) : (
         <div className="flex flex-col items-center justify-center h-full">
           <p className="text-gray-500 text-center mb-2">No expense data available</p>
-          {expenses.length === 0 ? (
-            <p className="text-sm text-gray-400">Record your first expense to see data here</p>
+          {expenses.length === 0 && rides.length === 0 ? (
+            <p className="text-sm text-gray-400">Record your first expense or ride to see data here</p>
           ) : (
             <p className="text-sm text-gray-400">Try selecting a different date range</p>
           )}

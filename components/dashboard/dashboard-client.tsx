@@ -10,7 +10,6 @@ import { DateRangePicker } from "@/components/dashboard/date-range-picker";
 import { SummaryCards } from "@/components/dashboard/summary-cards";
 import { EarningsChart } from "@/components/dashboard/earnings-chart";
 import { ExpensesChart } from "@/components/dashboard/expenses-chart";
-import { VehicleValueChart } from "@/components/dashboard/vehicle-value-chart";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -306,7 +305,6 @@ export function DashboardClient({ rides, expenses, vehicles }: DashboardClientPr
         <TabsList>
           <TabsTrigger value="earnings">Earnings</TabsTrigger>
           <TabsTrigger value="expenses">Expenses</TabsTrigger>
-          <TabsTrigger value="vehicles">Vehicles</TabsTrigger>
         </TabsList>
         <TabsContent value="earnings" className="space-y-4">
           <Card>
@@ -335,24 +333,8 @@ export function DashboardClient({ rides, expenses, vehicles }: DashboardClientPr
             <CardContent className="h-[400px]">
               <ExpensesChart 
                 expenses={filteredExpenses} 
-                dateRange={dateRange} 
-              />
-            </CardContent>
-          </Card>
-        </TabsContent>
-        <TabsContent value="vehicles" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Vehicle Performance</CardTitle>
-              <CardDescription>
-                Comparison of earnings and expenses by vehicle
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="h-[400px]">
-              <VehicleValueChart 
-                vehicles={vehicles} 
-                rides={filteredRides} 
-                expenses={filteredExpenses} 
+                dateRange={dateRange}
+                rides={filteredRides}
               />
             </CardContent>
           </Card>
