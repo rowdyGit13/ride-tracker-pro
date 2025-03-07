@@ -90,7 +90,7 @@ export function SummaryCards({ metrics }: SummaryCardsProps) {
       
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Hours Online</CardTitle>
+          <CardTitle className="text-sm font-medium">Hours (Online)</CardTitle>
           <Clock className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
@@ -103,7 +103,7 @@ export function SummaryCards({ metrics }: SummaryCardsProps) {
       
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Hours Booked</CardTitle>
+          <CardTitle className="text-sm font-medium">Hours (Booked)</CardTitle>
           <Timer className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>

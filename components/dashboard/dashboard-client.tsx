@@ -307,7 +307,6 @@ export function DashboardClient({ rides, expenses, vehicles }: DashboardClientPr
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-          <h2 className="text-3xl font-bold tracking-tight">Dashboard</h2>
           <p className="text-muted-foreground">
             Performance overview of your driving sessions and expenses
           </p>
