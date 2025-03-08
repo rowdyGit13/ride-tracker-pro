@@ -4,7 +4,7 @@ import { SelectRide } from "@/db/schema/rides-schema";
 import { SelectExpense } from "@/db/schema/expenses-schema";
 import { DateRange } from "react-day-picker";
 import { useMemo } from "react";
-import { format, startOfMonth, endOfMonth, eachMonthOfInterval, isSameMonth } from "date-fns";
+import { format, parseISO, startOfMonth, endOfMonth, eachMonthOfInterval, isSameMonth } from "date-fns";
 import {
   BarChart,
   Bar,
@@ -15,8 +15,7 @@ import {
   Legend,
   ResponsiveContainer,
   ReferenceLine,
-  TooltipProps,
-  Cell
+  TooltipProps
 } from "recharts";
 import { AxisDomain } from "recharts/types/util/types";
 import { parseDate } from "@/lib/utils";
@@ -335,9 +334,7 @@ export function NetProfitChart({ rides, expenses, dateRange }: NetProfitChartPro
   return (
     <ResponsiveContainer width="100%" height="100%">
       {chartData.length > 0 ? (
-        <BarChart 
-          data={chartData} 
-          margin={{ top: 20, right: 30, left: 20, bottom: 10 }}>
+        <BarChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 70 }}>
           <CartesianGrid strokeDasharray="3 3" />
           <XAxis 
             dataKey="month" 
@@ -370,19 +367,19 @@ export function NetProfitChart({ rides, expenses, dateRange }: NetProfitChartPro
             isAnimationActive={false}
           />
           <Legend />
-          <ReferenceLine y={0} stroke="#666" strokeWidth={4} />
+          <ReferenceLine y={0} stroke="#666" />
           <Bar 
-            dataKey="netProfit"
-            name="Net Profit"
+            dataKey={(entry) => entry.netProfit >= 0 ? entry.netProfit : 0} 
+            name="Profit" 
+            fill="#10b981"
             radius={[4, 4, 0, 0]}
-          >
-            {chartData.map((entry, index) => (
-              <Cell 
-                key={`cell-${index}`} 
-                fill={entry.netProfit >= 0 ? '#10b981' : '#ef4444'} 
-              />
-            ))}
-          </Bar>
+          />
+          <Bar 
+            dataKey={(entry) => entry.netProfit < 0 ? entry.netProfit : 0} 
+            name="Loss" 
+            fill="#ef4444"
+            radius={[4, 4, 0, 0]}
+          />
         </BarChart>
       ) : (
         <div className="flex flex-col items-center justify-center h-full">

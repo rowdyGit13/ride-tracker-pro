@@ -1,1 +1,0 @@
-ALTER TABLE "vehicles" DROP COLUMN "license_plate";
