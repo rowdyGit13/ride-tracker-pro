@@ -1,14 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
-import { createRideAction } from "@/actions/rides-actions";
-import { createExpenseAction } from "@/actions/expenses-actions";
-import { createVehicleAction } from "@/actions/vehicles-actions";
+import { getVehicleById } from "@/db/queries/vehicles-queries";
 import { parse as csvParse } from "csv-parse/sync";
 
-// Templates structure for validation
+// Templates structure for validation - remove vehicleId and vehicles template
 const templates = {
   rides: [
-    "vehicleId", 
     "rideType", 
     "sessionDate", 
     "timeOnline", 
@@ -19,20 +16,12 @@ const templates = {
     "notes"
   ],
   expenses: [
-    "vehicleId", 
     "expenseType", 
     "date", 
     "amount", 
     "description"
-  ],
-  vehicles: [
-    "make", 
-    "model", 
-    "year", 
-    "licensePlate", 
-    "color", 
-    "nickname"
   ]
+  // vehicles template removed completely
 };
 
 export async function POST(request: NextRequest) {
@@ -47,14 +36,29 @@ export async function POST(request: NextRequest) {
     const formData = await request.formData();
     const file = formData.get("file") as File;
     const type = formData.get("type") as string;
+    const vehicleId = formData.get("vehicleId") as string;
 
     // Validate file and type
     if (!file) {
       return NextResponse.json({ message: "No file provided" }, { status: 400 });
     }
 
-    if (!type || !["rides", "expenses", "vehicles"].includes(type)) {
+    if (!type || !["rides", "expenses"].includes(type)) {
       return NextResponse.json({ message: "Invalid import type" }, { status: 400 });
+    }
+
+    // Validate vehicle exists and belongs to user
+    if (!vehicleId) {
+      return NextResponse.json({ message: "Vehicle ID is required" }, { status: 400 });
+    }
+
+    const vehicle = await getVehicleById(vehicleId);
+    if (!vehicle) {
+      return NextResponse.json({ message: "Vehicle not found" }, { status: 400 });
+    }
+
+    if (vehicle.userId !== userId) {
+      return NextResponse.json({ message: "Unauthorized - Vehicle does not belong to user" }, { status: 401 });
     }
 
     // Check file type
@@ -117,15 +121,6 @@ export async function POST(request: NextRequest) {
       // Validate specific fields based on import type
       if (type === "rides") {
         // Validate ride data
-        if (record.vehicleId && typeof record.vehicleId !== "string") {
-          errors.push({
-            row: index,
-            column: "vehicleId",
-            message: "Vehicle ID must be a string"
-          });
-          isValid = false;
-        }
-
         if (record.rideType && !["uber", "lyft", "other"].includes(record.rideType)) {
           errors.push({
             row: index,
@@ -160,15 +155,6 @@ export async function POST(request: NextRequest) {
         });
       } else if (type === "expenses") {
         // Validate expense data
-        if (record.vehicleId && typeof record.vehicleId !== "string") {
-          errors.push({
-            row: index,
-            column: "vehicleId",
-            message: "Vehicle ID must be a string"
-          });
-          isValid = false;
-        }
-
         const validExpenseTypes = ["fuel", "maintenance", "insurance", "car_payment", "cleaning", "parking", "tolls", "other"];
         if (record.expenseType && !validExpenseTypes.includes(record.expenseType)) {
           errors.push({
@@ -195,31 +181,6 @@ export async function POST(request: NextRequest) {
             message: "Amount must be a valid number"
           });
           isValid = false;
-        }
-      } else if (type === "vehicles") {
-        // Validate vehicle data
-        const requiredStringFields = ["make", "model"];
-        requiredStringFields.forEach(field => {
-          if (!record[field] || typeof record[field] !== "string") {
-            errors.push({
-              row: index,
-              column: field,
-              message: `${field} is required and must be text`
-            });
-            isValid = false;
-          }
-        });
-
-        if (record.year) {
-          const year = Number(record.year);
-          if (isNaN(year) || year < 1900 || year > new Date().getFullYear() + 1) {
-            errors.push({
-              row: index,
-              column: "year",
-              message: `Year must be between 1900 and ${new Date().getFullYear() + 1}`
-            });
-            isValid = false;
-          }
         }
       }
 

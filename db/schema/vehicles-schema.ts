@@ -6,9 +6,8 @@ export const vehiclesTable = pgTable("vehicles", {
   make: text("make").notNull(),
   model: text("model").notNull(),
   year: integer("year").notNull(),
-  licensePlate: text("license_plate"),
   color: text("color"),
-  nickname: text("nickname"),
+  nickname: text("nickname").notNull(),
   isActive: integer("is_active").default(1).notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at")

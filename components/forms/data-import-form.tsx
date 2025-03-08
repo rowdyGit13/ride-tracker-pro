@@ -1,23 +1,33 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
-import { Download, Upload, AlertCircle, CheckCircle2, Info, Loader2 } from "lucide-react";
+import { Download, Upload, AlertCircle, CheckCircle2, Info, Loader2, Car, Receipt } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { 
+  Select, 
+  SelectContent, 
+  SelectItem, 
+  SelectTrigger, 
+  SelectValue 
+} from "@/components/ui/select";
+import { getVehiclesByUserIdAction } from "@/actions/vehicles-actions";
+import { SelectVehicle } from "@/db/schema/vehicles-schema";
 
 // Define the schema for the import form
 const importFormSchema = z.object({
+  type: z.enum(["rides", "expenses"]),
+  vehicleId: z.string().min(1, "Please select a vehicle"),
   file: z.instanceof(File, { message: "Please select a file to import" })
     .refine(file => file.size <= 5 * 1024 * 1024, {
       message: "File size must be less than 5MB"
@@ -33,7 +43,7 @@ const importFormSchema = z.object({
 type ImportFormValues = z.infer<typeof importFormSchema>;
 
 // Define the type of import
-type ImportType = "rides" | "expenses" | "vehicles";
+type ImportType = "rides" | "expenses";
 
 // Define the state for the preview data
 type PreviewData = {
@@ -44,19 +54,56 @@ type PreviewData = {
   errors: { row: number; column: string; message: string }[];
 };
 
+// Define CSV templates by type
+const csvTemplates = {
+  rides: "rideType,sessionDate,timeOnline,timeBooked,distanceOnline,distanceBooked,totalAmount,notes",
+  expenses: "expenseType,date,amount,description"
+};
+
 export function DataImportForm() {
-  const [importType, setImportType] = useState<ImportType>("rides");
+  const [activeImportType, setActiveImportType] = useState<ImportType | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadStatus, setUploadStatus] = useState<'idle' | 'success' | 'error' | 'preview'>('idle');
   const [previewData, setPreviewData] = useState<PreviewData | null>(null);
+  const [vehicles, setVehicles] = useState<SelectVehicle[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
+
+  // Fetch vehicles on component mount
+  useEffect(() => {
+    const fetchVehicles = async () => {
+      const result = await getVehiclesByUserIdAction();
+      if (result.status === "success" && result.data) {
+        setVehicles(result.data);
+      } else {
+        toast({
+          title: "Error fetching vehicles",
+          description: "Please make sure you have added at least one vehicle",
+          variant: "destructive"
+        });
+      }
+    };
+    fetchVehicles();
+  }, [toast]);
 
   // Initialize form
   const form = useForm<ImportFormValues>({
     resolver: zodResolver(importFormSchema),
-    defaultValues: {}
+    defaultValues: {
+      type: "rides",
+      vehicleId: ""
+    }
   });
+
+  // Set the type when a card is selected
+  const selectImportType = (type: ImportType) => {
+    setActiveImportType(type);
+    form.setValue("type", type);
+    if (uploadStatus === 'preview') {
+      setUploadStatus('idle');
+      setPreviewData(null);
+    }
+  };
 
   // Handle file selection
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -68,8 +115,31 @@ export function DataImportForm() {
     }
   };
 
+  // Handle download template for a specific type
+  const handleDownloadTemplate = (type: ImportType) => {
+    const csvContent = csvTemplates[type];
+    const blob = new Blob([csvContent], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${type}-template.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
   // Handle form submission
   const onSubmit = async (values: ImportFormValues) => {
+    if (!activeImportType) {
+      toast({
+        title: "Error",
+        description: "Please select an import type (Rides or Expenses)",
+        variant: "destructive"
+      });
+      return;
+    }
+
     setIsUploading(true);
     setUploadStatus('idle');
 
@@ -77,7 +147,8 @@ export function DataImportForm() {
       // Create a FormData object to send the file
       const formData = new FormData();
       formData.append('file', values.file);
-      formData.append('type', importType);
+      formData.append('type', activeImportType);
+      formData.append('vehicleId', values.vehicleId);
 
       // Send the file to the server for validation
       const response = await fetch('/api/import/validate', {
@@ -110,18 +181,19 @@ export function DataImportForm() {
 
   // Handle confirm import
   const handleConfirmImport = async () => {
-    if (!previewData) return;
+    if (!previewData || !activeImportType) return;
 
     setIsUploading(true);
     try {
       // Create a FormData object to send the file
       const formData = new FormData();
       formData.append('file', form.getValues('file'));
-      formData.append('type', importType);
+      formData.append('type', activeImportType);
+      formData.append('vehicleId', form.getValues('vehicleId'));
       formData.append('confirm', 'true');
 
       // Send the file to the server for import
-      const response = await fetch('/api/import', {
+      const response = await fetch('/api/import/process', {
         method: 'POST',
         body: formData
       });
@@ -140,11 +212,12 @@ export function DataImportForm() {
       setUploadStatus('success');
 
       // Reset the form
-      form.reset();
+      form.reset({ type: activeImportType, vehicleId: "" });
       if (fileInputRef.current) {
         fileInputRef.current.value = "";
       }
       setPreviewData(null);
+      setActiveImportType(null);
 
     } catch (error) {
       console.error('Import error:', error);
@@ -159,184 +232,169 @@ export function DataImportForm() {
     }
   };
 
-  // Handle template download
-  const handleDownloadTemplate = () => {
-    // Different template URLs based on import type
-    const templateUrls = {
-      rides: '/templates/rides-template.csv',
-      expenses: '/templates/expenses-template.csv',
-      vehicles: '/templates/vehicles-template.csv'
-    };
-
-    // Open the template URL
-    window.open(templateUrls[importType], '_blank');
-  };
-
   return (
-    <div className="space-y-6">
-      <Tabs defaultValue="rides" onValueChange={(value) => setImportType(value as ImportType)}>
-        <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="rides">Rides</TabsTrigger>
-          <TabsTrigger value="expenses">Expenses</TabsTrigger>
-          <TabsTrigger value="vehicles">Vehicles</TabsTrigger>
-        </TabsList>
-        
-        {/* Rides Tab Content */}
-        <TabsContent value="rides">
-          <Card>
-            <CardHeader>
-              <CardTitle>Import Rides</CardTitle>
-              <CardDescription>
-                Import your ride data in bulk from a CSV, Excel, or JSON file
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <Alert>
-                  <Info className="h-4 w-4" />
-                  <AlertTitle>Information</AlertTitle>
-                  <AlertDescription>
-                    Download our template file to ensure your data is formatted correctly.
-                    The template includes all required fields and column formats.
-                  </AlertDescription>
-                </Alert>
-                
-                <Button 
-                  variant="outline" 
-                  onClick={handleDownloadTemplate}
-                  className="w-full md:w-auto"
-                >
-                  <Download className="mr-2 h-4 w-4" />
-                  Download Template
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-        
-        {/* Expenses Tab Content */}
-        <TabsContent value="expenses">
-          <Card>
-            <CardHeader>
-              <CardTitle>Import Expenses</CardTitle>
-              <CardDescription>
-                Import your expense data in bulk from a CSV, Excel, or JSON file
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <Alert>
-                  <Info className="h-4 w-4" />
-                  <AlertTitle>Information</AlertTitle>
-                  <AlertDescription>
-                    Download our template file to ensure your data is formatted correctly.
-                    The template includes all required fields and column formats.
-                  </AlertDescription>
-                </Alert>
-                
-                <Button 
-                  variant="outline" 
-                  onClick={handleDownloadTemplate}
-                  className="w-full md:w-auto"
-                >
-                  <Download className="mr-2 h-4 w-4" />
-                  Download Template
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-        
-        {/* Vehicles Tab Content */}
-        <TabsContent value="vehicles">
-          <Card>
-            <CardHeader>
-              <CardTitle>Import Vehicles</CardTitle>
-              <CardDescription>
-                Import your vehicle data in bulk from a CSV, Excel, or JSON file
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <Alert>
-                  <Info className="h-4 w-4" />
-                  <AlertTitle>Information</AlertTitle>
-                  <AlertDescription>
-                    Download our template file to ensure your data is formatted correctly.
-                    The template includes all required fields and column formats.
-                  </AlertDescription>
-                </Alert>
-                
-                <Button 
-                  variant="outline" 
-                  onClick={handleDownloadTemplate}
-                  className="w-full md:w-auto"
-                >
-                  <Download className="mr-2 h-4 w-4" />
-                  Download Template
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
+    <div className="space-y-8">
+      <h2 className="text-2xl font-bold tracking-tight">Import Data</h2>
+      <p className="text-muted-foreground">
+        Import your data in bulk from a CSV, Excel, or JSON file
+      </p>
 
-      {/* File Upload Form */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Upload Your Data</CardTitle>
-          <CardDescription>
-            Select the file containing your {importType} data to import
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-              <FormField
-                control={form.control}
-                name="file"
-                render={({ field: { onChange, value, ref, ...rest } }) => (
-                  <FormItem>
-                    <FormLabel>File</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="file"
-                        accept=".csv,.xlsx,.json"
-                        onChange={handleFileChange}
-                        ref={fileInputRef}
-                        disabled={isUploading}
-                        {...rest}
-                      />
-                    </FormControl>
-                    <FormDescription>
-                      Select a CSV, Excel (XLSX), or JSON file containing your {importType} data
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              
-              <Button 
-                type="submit" 
-                disabled={isUploading}
-                className="w-full md:w-auto"
-              >
-                {isUploading ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Processing...
-                  </>
-                ) : (
-                  <>
-                    <Upload className="mr-2 h-4 w-4" />
-                    Validate File
-                  </>
-                )}
-              </Button>
-            </form>
-          </Form>
-        </CardContent>
-      </Card>
+      {/* Import Type Selection */}
+      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+        {/* Rides Import Card */}
+        <Card className={`cursor-pointer border-2 hover:border-primary/50 ${activeImportType === 'rides' ? 'border-primary' : 'border-border'}`}
+            onClick={() => selectImportType('rides')}>
+          <CardHeader>
+            <CardTitle className="flex items-center">
+              <Car className="h-5 w-5 mr-2" /> 
+              Import Rides
+            </CardTitle>
+            <CardDescription>
+              Import your driving sessions data in bulk
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-muted-foreground">
+              Import ride data including session date, time, distance, and earnings
+            </p>
+          </CardContent>
+          <CardFooter className="flex justify-between">
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleDownloadTemplate('rides');
+              }}
+            >
+              <Download className="h-4 w-4 mr-2" />
+              Download Template
+            </Button>
+          </CardFooter>
+        </Card>
+
+        {/* Expenses Import Card */}
+        <Card className={`cursor-pointer border-2 hover:border-primary/50 ${activeImportType === 'expenses' ? 'border-primary' : 'border-border'}`}
+            onClick={() => selectImportType('expenses')}>
+          <CardHeader>
+            <CardTitle className="flex items-center">
+              <Receipt className="h-5 w-5 mr-2" />
+              Import Expenses
+            </CardTitle>
+            <CardDescription>
+              Import your vehicle expense data in bulk
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-muted-foreground">
+              Import expense data including type, date, amount, and description
+            </p>
+          </CardContent>
+          <CardFooter className="flex justify-between">
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleDownloadTemplate('expenses');
+              }}
+            >
+              <Download className="h-4 w-4 mr-2" />
+              Download Template
+            </Button>
+          </CardFooter>
+        </Card>
+      </div>
+
+      {/* File Upload Form - Only shown when an import type is selected */}
+      {activeImportType && (
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+            <Card>
+              <CardHeader>
+                <CardTitle>
+                  Upload {activeImportType === 'rides' ? 'Rides' : 'Expenses'} Data
+                  <Badge className="ml-2">{activeImportType}</Badge>
+                </CardTitle>
+                <CardDescription>
+                  Select your vehicle and upload a file to import
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <FormField
+                  control={form.control}
+                  name="vehicleId"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Vehicle</FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select vehicle" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {vehicles.map((vehicle) => (
+                            <SelectItem key={vehicle.id} value={vehicle.id}>
+                              {vehicle.nickname}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormDescription>
+                        Select which vehicle this data belongs to
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="file"
+                  render={({ field: { onChange, value, ref, ...rest } }) => (
+                    <FormItem>
+                      <FormLabel>File</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="file"
+                          accept=".csv,.xlsx,.json"
+                          onChange={handleFileChange}
+                          ref={fileInputRef}
+                          disabled={isUploading}
+                          {...rest}
+                        />
+                      </FormControl>
+                      <FormDescription>
+                        Select a CSV, Excel (XLSX), or JSON file
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </CardContent>
+              <CardFooter>
+                <Button 
+                  type="submit" 
+                  disabled={isUploading}
+                >
+                  {isUploading ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Processing...
+                    </>
+                  ) : (
+                    <>
+                      <Upload className="mr-2 h-4 w-4" />
+                      Validate File
+                    </>
+                  )}
+                </Button>
+              </CardFooter>
+            </Card>
+          </form>
+        </Form>
+      )}
 
       {/* Preview and Confirmation Section */}
       {uploadStatus === 'preview' && previewData && (
