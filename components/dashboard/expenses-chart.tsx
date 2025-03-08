@@ -377,7 +377,7 @@ export function ExpensesChart({ expenses, dateRange, rides = [] }: ExpensesChart
       {chartData.length > 0 ? (
         <BarChart 
           data={chartData} 
-          margin={{ top: 20, right: 30, left: 20, bottom: 70 }}
+          margin={{ top: 20, right: 30, left: 20, bottom: 10 }}
         >
           <CartesianGrid strokeDasharray="3 3" />
           <XAxis 

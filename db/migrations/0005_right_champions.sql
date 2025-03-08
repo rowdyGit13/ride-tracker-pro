@@ -1,0 +1,1 @@
+ALTER TABLE "vehicles" ALTER COLUMN "nickname" SET NOT NULL;

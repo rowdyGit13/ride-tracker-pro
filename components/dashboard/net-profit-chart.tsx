@@ -15,7 +15,8 @@ import {
   Legend,
   ResponsiveContainer,
   ReferenceLine,
-  TooltipProps
+  TooltipProps,
+  Cell
 } from "recharts";
 import { AxisDomain } from "recharts/types/util/types";
 import { parseDate } from "@/lib/utils";
@@ -334,7 +335,9 @@ export function NetProfitChart({ rides, expenses, dateRange }: NetProfitChartPro
   return (
     <ResponsiveContainer width="100%" height="100%">
       {chartData.length > 0 ? (
-        <BarChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 70 }}>
+        <BarChart 
+          data={chartData} 
+          margin={{ top: 20, right: 30, left: 20, bottom: 10 }} >
           <CartesianGrid strokeDasharray="3 3" />
           <XAxis 
             dataKey="month" 
@@ -366,20 +369,17 @@ export function NetProfitChart({ rides, expenses, dateRange }: NetProfitChartPro
             cursor={{ fill: 'rgba(200, 200, 200, 0.2)' }}
             isAnimationActive={false}
           />
-          <Legend />
-          <ReferenceLine y={0} stroke="#666" />
+          <ReferenceLine y={0} stroke="#666" strokeWidth={5} />
           <Bar 
-            dataKey={(entry) => entry.netProfit >= 0 ? entry.netProfit : 0} 
-            name="Profit" 
-            fill="#10b981"
-            radius={[4, 4, 0, 0]}
-          />
-          <Bar 
-            dataKey={(entry) => entry.netProfit < 0 ? entry.netProfit : 0} 
-            name="Loss" 
-            fill="#ef4444"
-            radius={[4, 4, 0, 0]}
-          />
+            dataKey="netProfit"
+            name="Net Profit"          >
+            {chartData.map((entry, index) => (
+              <Cell 
+                key={`cell-${index}`} 
+                fill={entry.netProfit >= 0 ? '#10b981' : '#ef4444'} 
+              />
+            ))}
+          </Bar>
         </BarChart>
       ) : (
         <div className="flex flex-col items-center justify-center h-full">

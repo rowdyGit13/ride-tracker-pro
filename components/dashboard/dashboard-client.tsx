@@ -13,77 +13,8 @@ import { ExpensesChart } from "@/components/dashboard/expenses-chart";
 import { NetProfitChart } from "@/components/dashboard/net-profit-chart";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { parseDate } from "@/lib/utils";
 
-// Debug component to show data counts
-function DataDebugger({ 
-  rides, 
-  filteredRides, 
-  expenses, 
-  filteredExpenses, 
-  vehicles 
-}: { 
-  rides: SelectRide[], 
-  filteredRides: SelectRide[], 
-  expenses: SelectExpense[], 
-  filteredExpenses: SelectExpense[], 
-  vehicles: SelectVehicle[] 
-}) {
-  const [showDetails, setShowDetails] = useState(false);
-  
-  return (
-    <div className="p-4 my-4 border border-dashed border-yellow-400 bg-yellow-50 rounded-lg">
-      <div className="flex justify-between items-center">
-        <h3 className="font-semibold">Data Validation</h3>
-        <Button 
-          variant="outline" 
-          size="sm" 
-          onClick={() => setShowDetails(!showDetails)}
-        >
-          {showDetails ? "Hide Details" : "Show Details"}
-        </Button>
-      </div>
-      
-      <div className="grid grid-cols-3 gap-4 mt-2">
-        <div>
-          <p><strong>Vehicles:</strong> {vehicles.length}</p>
-          {vehicles.length === 0 && <p className="text-red-500 text-xs">No vehicles found</p>}
-        </div>
-        <div>
-          <p><strong>Total Rides:</strong> {rides.length}</p>
-          <p><strong>Filtered Rides:</strong> {filteredRides.length}</p>
-          {rides.length === 0 && <p className="text-red-500 text-xs">No rides found</p>}
-        </div>
-        <div>
-          <p><strong>Total Expenses:</strong> {expenses.length}</p>
-          <p><strong>Filtered Expenses:</strong> {filteredExpenses.length}</p>
-          {expenses.length === 0 && <p className="text-red-500 text-xs">No expenses found</p>}
-        </div>
-      </div>
-      
-      {showDetails && vehicles.length > 0 && (
-        <div className="mt-4">
-          <h4 className="font-semibold">Vehicle IDs:</h4>
-          <ul className="text-xs">
-            {vehicles.map(v => (
-              <li key={v.id}>{v.id}: {v.make} {v.model}</li>
-            ))}
-          </ul>
-        </div>
-      )}
-      
-      {showDetails && filteredRides.length > 0 && (
-        <div className="mt-4">
-          <h4 className="font-semibold">First Ride:</h4>
-          <pre className="text-xs overflow-auto max-h-20">
-            {JSON.stringify(filteredRides[0], null, 2)}
-          </pre>
-        </div>
-      )}
-    </div>
-  );
-}
 
 interface DashboardClientProps {
   rides: SelectRide[];
@@ -373,8 +304,6 @@ export function DashboardClient({ rides, expenses, vehicles }: DashboardClientPr
           </Card>
         </TabsContent>
       </Tabs>
-
-      <DataDebugger rides={rides} filteredRides={filteredRides} expenses={expenses} filteredExpenses={filteredExpenses} vehicles={vehicles} />
     </div>
   );
 } 
