@@ -39,13 +39,13 @@ export default function Header() {
               </Link>
             </NavigationMenuItem>
             
-            <NavigationMenuItem>
+            {/* <NavigationMenuItem>
               <Link href="/pricing" legacyBehavior passHref>
                 <NavigationMenuLink className={navigationMenuTriggerStyle()}>
                   Pricing
                 </NavigationMenuLink>
               </Link>
-            </NavigationMenuItem>
+            </NavigationMenuItem> */}
             
             <SignedIn>
               <NavigationMenuItem>

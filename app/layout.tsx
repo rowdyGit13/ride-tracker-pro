@@ -78,9 +78,9 @@ export default async function RootLayout({
                     <span className="text-sm text-muted-foreground">© {new Date().getFullYear()} Ride Tracker Pro. All rights reserved.</span>
                   </div>
                   <div className="flex space-x-6">
-                    <a href="#" className="text-sm text-muted-foreground hover:text-foreground">Privacy Policy</a>
-                    <a href="#" className="text-sm text-muted-foreground hover:text-foreground">Terms of Service</a>
-                    <a href="#" className="text-sm text-muted-foreground hover:text-foreground">Contact</a>
+                    {/* <a href="#" className="text-sm text-muted-foreground hover:text-foreground">Privacy Policy</a>
+                    <a href="#" className="text-sm text-muted-foreground hover:text-foreground">Terms of Service</a> */}
+                    <a href="/feedback" className="text-sm text-muted-foreground hover:text-foreground">Contact/Feedback</a>
                   </div>
                 </div>
               </div>
