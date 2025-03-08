@@ -9,7 +9,7 @@ export default function SignUpPage() {
 
   return (
     <SignUp
-      forceRedirectUrl="/notes"
+      forceRedirectUrl="/dashboard"
       appearance={{ baseTheme: theme === "dark" ? dark : undefined }}
     />
   );

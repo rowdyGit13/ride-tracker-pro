@@ -1,4 +1,3 @@
-///import { createProfileAction, getProfileByUserIdAction } from "@/actions/profiles-actions";
 import Header from "@/components/header";
 import { Toaster } from "@/components/ui/toaster";
 import { Providers } from "@/components/utilities/providers";
@@ -7,6 +6,8 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import { Suspense } from "react";
 import "./globals.css";
+import { createProfileAction, getProfileByUserIdAction } from "@/actions/profiles-actions";
+import { auth } from "@clerk/nextjs/server";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -43,19 +44,18 @@ export const metadata: Metadata = {
   }
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  // Uncomment when you're ready to implement user profiles
-  // const { userId } = await auth();
-  // if (userId) {
-  //   const profile = await getProfileByUserIdAction(userId);
-  //   if (!profile.data) {
-  //     await createProfileAction({ userId });
-  //   }
-  // }
+  const { userId } = await auth();
+  if (userId) {
+    const profile = await getProfileByUserIdAction(userId);
+    if (!profile.data) {
+      await createProfileAction({ userId });
+    }
+  }
 
   return (
     <ClerkProvider>
