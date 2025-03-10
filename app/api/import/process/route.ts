@@ -109,10 +109,8 @@ export async function POST(request: NextRequest) {
             notes: record.notes || ""
           };
 
-          console.log("Creating ride with data:", JSON.stringify(rideData));
           const result = await createRideAction(rideData);
           
-          console.log("Ride creation result:", result);
           if (result.status === "error") {
             results.failed++;
             results.errors.push({
@@ -161,10 +159,8 @@ export async function POST(request: NextRequest) {
             description: record.description || ""
           };
 
-          console.log("Creating expense with data:", JSON.stringify(expenseData));
           const result = await createExpenseAction(expenseData);
           
-          console.log("Expense creation result:", result);
           if (result.status === "error") {
             results.failed++;
             results.errors.push({

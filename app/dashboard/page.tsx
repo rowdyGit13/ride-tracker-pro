@@ -5,12 +5,27 @@ import { DashboardClient } from "@/components/dashboard/dashboard-client";
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 
-export default async function DashboardPage() {
+type Props = {
+  searchParams: { 
+    startDate?: string; 
+    endDate?: string;
+  };
+};
+
+export default async function DashboardPage({ searchParams }: Props) {
   const { userId } = await auth();
   
   if (!userId) {
     redirect("/sign-in");
   }
+
+  // Get date range from URL or use defaults
+  const startDate = searchParams.startDate ? new Date(searchParams.startDate) : getDefaultStartDate();
+  const endDate = searchParams.endDate ? new Date(searchParams.endDate) : new Date();
+
+  // Serialize dates to ensure they're valid
+  const initialStartDate = startDate && !isNaN(startDate.getTime()) ? startDate : getDefaultStartDate();
+  const initialEndDate = endDate && !isNaN(endDate.getTime()) ? endDate : new Date();
 
   // Fetch all the data needed for the dashboard
   const [ridesResponse, expensesResponse, vehiclesResponse] = await Promise.all([
@@ -23,11 +38,7 @@ export default async function DashboardPage() {
   const expenses = expensesResponse.status === "success" ? expensesResponse.data : [];
   const vehicles = vehiclesResponse.status === "success" ? vehiclesResponse.data : [];
 
-  // Debug logs
-  console.log("Dashboard data fetched:");
-  console.log(`Vehicles: ${vehicles.length}`);
-  console.log(`Rides: ${rides.length}`);
-  console.log(`Expenses: ${expenses.length}`);
+
   
   if (vehicles.length > 0) {
     console.log("First vehicle:", {
@@ -68,7 +79,16 @@ export default async function DashboardPage() {
         rides={rides} 
         expenses={expenses} 
         vehicles={vehicles} 
+        initialStartDate={initialStartDate}
+        initialEndDate={initialEndDate}
       />
     </div>
   );
+}
+
+// Helper function to get default start date (first day of current month)
+function getDefaultStartDate(): Date {
+  const date = new Date();
+  date.setDate(1); // First day of month
+  return date;
 } 

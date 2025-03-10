@@ -14,20 +14,64 @@ import { NetProfitChart } from "@/components/dashboard/net-profit-chart";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { parseDate } from "@/lib/utils";
+import { useRouter, useSearchParams } from "next/navigation";
 
 
 interface DashboardClientProps {
   rides: SelectRide[];
   expenses: SelectExpense[];
   vehicles: SelectVehicle[];
+  initialStartDate?: Date;
+  initialEndDate?: Date;
 }
 
-export function DashboardClient({ rides, expenses, vehicles }: DashboardClientProps) {
-  // Set default date range to last 3 months
-  const [dateRange, setDateRange] = useState<DateRange | undefined>({
-    from: subMonths(new Date(), 3),
-    to: new Date(),
+export function DashboardClient({ 
+  rides, 
+  expenses, 
+  vehicles,
+  initialStartDate,
+  initialEndDate 
+}: DashboardClientProps) {
+  // Use router to update URL without navigation
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
+  // Initialize date range from props or default values
+  const [dateRange, setDateRange] = useState<DateRange | undefined>(() => {
+    // Use provided initial dates, or default to current month
+    const startDate = initialStartDate || (() => {
+      const date = new Date();
+      date.setDate(1); // First day of month
+      return date;
+    })();
+    
+    const endDate = initialEndDate || new Date();
+    
+    return {
+      from: startDate,
+      to: endDate
+    };
   });
+
+  // Update URL when date range changes
+  const handleDateRangeChange = (range: DateRange | undefined) => {
+    setDateRange(range);
+    
+    if (range?.from) {
+      // Create new URL parameters
+      const params = new URLSearchParams(searchParams.toString());
+      params.set('startDate', range.from.toISOString().split('T')[0]);
+      
+      if (range.to) {
+        params.set('endDate', range.to.toISOString().split('T')[0]);
+      } else {
+        params.delete('endDate');
+      }
+      
+      // Update URL without forcing a navigation
+      router.push(`/dashboard?${params.toString()}`, { scroll: false });
+    }
+  };
 
   // Filter rides and expenses based on date range
   const filteredRides = useMemo(() => {
@@ -242,7 +286,12 @@ export function DashboardClient({ rides, expenses, vehicles }: DashboardClientPr
             Performance overview of your driving sessions and expenses
           </p>
         </div>
-        <DateRangePicker dateRange={dateRange} setDateRange={setDateRange} />
+        <div>
+          <p className="text-sm text-muted-foreground">
+            Filter data by date range
+          </p>
+        </div>
+        <DateRangePicker dateRange={dateRange} setDateRange={handleDateRangeChange} />
       </div>
 
       <SummaryCards metrics={summaryMetrics} />

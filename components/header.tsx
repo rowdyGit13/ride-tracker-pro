@@ -22,128 +22,124 @@ export default function Header() {
   };
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container mx-auto px-4 py-3 flex items-center justify-between">
-        <div className="flex items-center space-x-2">
-          <Car className="h-6 w-6 text-primary" />
-          <h1 className="text-xl font-bold">Ride Tracker Pro</h1>
+    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <div className="container flex h-16 items-center justify-between">
+        <div className="flex items-center gap-2">
+          <Link href="/" className="flex items-center gap-2">
+            <Car className="h-6 w-6 text-primary" />
+            <span className="font-bold text-xl hidden sm:inline-block">Ride Tracker Pro</span>
+          </Link>
         </div>
-        
-        <NavigationMenu className="hidden md:flex">
-          <NavigationMenuList>
-            <NavigationMenuItem>
-              <Link href="/" legacyBehavior passHref>
-                <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                  Home
-                </NavigationMenuLink>
-              </Link>
-            </NavigationMenuItem>
-            
-            {/* <NavigationMenuItem>
-              <Link href="/pricing" legacyBehavior passHref>
-                <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                  Pricing
-                </NavigationMenuLink>
-              </Link>
-            </NavigationMenuItem> */}
-            
+
+        {/* Desktop Navigation */}
+        <div className="hidden md:flex md:items-center md:gap-6">
+          <NavigationMenu>
+            <NavigationMenuList>
+              <SignedOut>
+                <NavigationMenuItem>
+                  <Link href="/" legacyBehavior passHref>
+                    <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                      Home
+                    </NavigationMenuLink>
+                  </Link>
+                </NavigationMenuItem>
+                <NavigationMenuItem>
+                  <Link href="/signup" legacyBehavior passHref>
+                    <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                      Sign Up
+                    </NavigationMenuLink>
+                  </Link>
+                </NavigationMenuItem>
+              </SignedOut>
+              
+              <SignedIn>
+                <NavigationMenuItem>
+                  <Link href="/dashboard" legacyBehavior passHref>
+                    <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                      Dashboard
+                    </NavigationMenuLink>
+                  </Link>
+                </NavigationMenuItem>
+                <NavigationMenuItem>
+                  <Link href="/forms" legacyBehavior passHref>
+                    <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                      Forms
+                    </NavigationMenuLink>
+                  </Link>
+                </NavigationMenuItem>
+              </SignedIn>
+            </NavigationMenuList>
+          </NavigationMenu>
+
+          <div className="flex items-center gap-4">
+            <ModeToggle />
+            <SignedOut>
+              <SignInButton mode="modal">
+                <Button variant="default" size="sm">
+                  Sign In
+                </Button>
+              </SignInButton>
+            </SignedOut>
             <SignedIn>
-              <NavigationMenuItem>
-                <Link href="/dashboard" legacyBehavior passHref>
-                  <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                    Dashboard
-                  </NavigationMenuLink>
-                </Link>
-              </NavigationMenuItem>
-              <NavigationMenuItem>
-                <Link href="/forms" legacyBehavior passHref>
-                  <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                    Forms
-                  </NavigationMenuLink>
-                </Link>
-              </NavigationMenuItem>
+              <UserButton afterSignOutUrl="/" />
             </SignedIn>
-          </NavigationMenuList>
-        </NavigationMenu>
-        
-        <div className="flex items-center space-x-4">
-          <ModeToggle />
-          
-          <SignedOut>
-            <div className="hidden md:block">
-              <Button variant="default" size="sm" asChild>
-                <SignInButton />
-              </Button>
-            </div>
-          </SignedOut>
-          
-          <SignedIn>
-            <UserButton
-              afterSignOutUrl="/"
-              appearance={{
-                elements: {
-                  avatarBox: "h-8 w-8"
-                }
-              }}
-            />
-          </SignedIn>
-          
-          <div className="md:hidden">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={toggleMenu}
-              aria-label="Toggle menu"
-            >
-              {isMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-            </Button>
           </div>
         </div>
+
+        {/* Mobile Navigation Toggle */}
+        <div className="flex md:hidden items-center gap-4">
+          <ModeToggle />
+          <Button variant="ghost" size="icon" onClick={toggleMenu}>
+            {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+          </Button>
+        </div>
       </div>
-      
+
+      {/* Mobile Navigation Menu */}
       {isMenuOpen && (
-        <div className="md:hidden border-t border-border/40 bg-background">
-          <nav className="container mx-auto py-4 px-6 space-y-4">
-            <Link
-              href="/"
-              className="flex items-center py-2 text-sm font-medium hover:text-primary"
-              onClick={toggleMenu}
-            >
-              Home
-            </Link>
-            
-            <Link
-              href="/pricing"
-              className="flex items-center py-2 text-sm font-medium hover:text-primary"
-              onClick={toggleMenu}
-            >
-              Pricing
-            </Link>
+        <div className="md:hidden border-t p-4">
+          <nav className="flex flex-col space-y-4">
+            <SignedOut>
+              <Link 
+                href="/" 
+                className="font-medium hover:text-primary"
+                onClick={toggleMenu}
+              >
+                Home
+              </Link>
+              <Link 
+                href="/signup" 
+                className="font-medium hover:text-primary"
+                onClick={toggleMenu}
+              >
+                Sign Up
+              </Link>
+              <SignInButton mode="modal">
+                <Button variant="default" size="sm" className="w-full">
+                  Sign In
+                </Button>
+              </SignInButton>
+            </SignedOut>
             
             <SignedIn>
-              <Link
-                href="/dashboard"
-                className="flex items-center py-2 text-sm font-medium hover:text-primary"
+              <Link 
+                href="/dashboard" 
+                className="font-medium hover:text-primary"
                 onClick={toggleMenu}
               >
                 Dashboard
               </Link>
-              <Link
-                href="/forms"
-                className="flex items-center py-2 text-sm font-medium hover:text-primary"
+              <Link 
+                href="/forms" 
+                className="font-medium hover:text-primary"
                 onClick={toggleMenu}
               >
                 Forms
               </Link>
-            </SignedIn>
-            
-            <SignedOut>
-              <div className="pt-2">
-                <Button className="w-full" size="sm" asChild>
-                  <SignInButton />
-                </Button>
+              <div className="pt-2 flex justify-start">
+                <UserButton afterSignOutUrl="/" />
               </div>
-            </SignedOut>
+            </SignedIn>
           </nav>
         </div>
       )}

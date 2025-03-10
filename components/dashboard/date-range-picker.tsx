@@ -22,7 +22,7 @@ import {
 
 interface DateRangePickerProps {
   dateRange: DateRange | undefined;
-  setDateRange: React.Dispatch<React.SetStateAction<DateRange | undefined>>;
+  setDateRange: (range: DateRange | undefined) => void;
 }
 
 export function DateRangePicker({ dateRange, setDateRange }: DateRangePickerProps) {

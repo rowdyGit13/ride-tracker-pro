@@ -1,9 +1,25 @@
 import { ArrowRight, Car, ChartBar, DollarSign } from "lucide-react";
-import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { Carousel } from "@/components/carousel";
 
 export default function Home() {
+  // Define your carousel images
+  const carouselImages = [
+    {
+      src: "/landing_page_1.png",
+      alt: "Ride Tracker Dashboard"
+    },
+    {
+      src: "/landing_page_2.png",
+      alt: "Earnings Tracking Features"
+    },
+    {
+      src: "/landing_page_3.png",
+      alt: "Expense Management System"
+    }
+  ];
+
   return (
     <div className="flex flex-col min-h-screen">
       {/* Hero Section */}
@@ -27,16 +43,8 @@ export default function Home() {
                 </Button>
               </div>
             </div>
-            <div className="relative h-[300px] md:h-[400px] rounded-xl overflow-hidden shadow-2xl">
-              <Image
-                src="/dashboard-preview.jpg"
-                alt="Ride Tracker Dashboard"
-                fill
-                className="object-cover"
-                priority
-                // Replace with your actual dashboard preview image
-                // If you don't have one, you can use a placeholder or create a mockup
-              />
+            <div className="relative h-[300px] md:h-[400px] shadow-2xl">
+              <Carousel images={carouselImages} />
             </div>
           </div>
         </div>

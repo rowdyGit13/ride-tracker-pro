@@ -1,0 +1,93 @@
+expenseType,date,amount,description
+fuel,1/5/24,48.75,Regular unleaded gas
+tolls,1/8/24,12.5,Highway toll charges
+parking,1/10/24,15,Downtown parking garage
+cleaning,1/12/24,25,Car wash and interior cleaning
+fuel,1/15/24,52.3,Premium fuel fill-up
+insurance,1/15/24,185,Monthly insurance premium
+car_payment,1/15/24,375,Monthly car payment
+fuel,1/22/24,49.85,Regular unleaded gas
+parking,1/25/24,8,Airport short-term parking
+maintenance,1/28/24,65,Oil change
+fuel,1/30/24,51.25,Regular unleaded gas
+tolls,2/2/24,10.75,Expressway tolls
+fuel,2/5/24,48.5,Regular unleaded gas
+cleaning,2/7/24,15,Basic car wash
+insurance,2/15/24,185,Monthly insurance premium
+car_payment,2/15/24,375,Monthly car payment
+fuel,2/15/24,53.75,Premium fuel fill-up
+parking,2/18/24,12,Event parking downtown
+fuel,2/22/24,50.25,Regular unleaded gas
+tolls,2/25/24,9.5,Bridge toll
+fuel,2/28/24,49.75,Regular unleaded gas
+maintenance,3/1/24,125,Tire rotation and balance
+other,3/3/24,35,Phone mount and charger
+fuel,3/6/24,52.5,Regular unleaded gas
+cleaning,3/9/24,35,Deluxe wash and wax
+fuel,3/12/24,50.75,Regular unleaded gas
+insurance,3/15/24,185,Monthly insurance premium
+car_payment,3/15/24,375,Monthly car payment
+tolls,3/17/24,14.25,Weekend toll charges
+fuel,3/18/24,49.25,Regular unleaded gas
+parking,3/21/24,18,Airport parking
+fuel,3/24/24,53.25,Premium fuel fill-up
+maintenance,3/28/24,250,Brake pad replacement
+fuel,3/30/24,51.5,Regular unleaded gas
+other,4/1/24,45,Car seat covers
+fuel,4/4/24,54.25,Premium fuel fill-up
+tolls,4/6/24,11.5,Highway tolls
+cleaning,4/8/24,25,Interior detailing
+fuel,4/10/24,52.75,Regular unleaded gas
+parking,4/13/24,14,Downtown parking
+insurance,4/15/24,185,Monthly insurance premium
+car_payment,4/15/24,375,Monthly car payment
+fuel,4/16/24,50.25,Regular unleaded gas
+maintenance,4/20/24,85,Fluid check and top off
+fuel,4/22/24,53.5,Premium fuel fill-up
+tolls,4/25/24,13.75,Expressway tolls
+fuel,4/28/24,51.75,Regular unleaded gas
+cleaning,5/1/24,18,Basic car wash
+other,5/3/24,65,Car sun shade and organizer
+fuel,5/5/24,54.5,Premium fuel fill-up
+parking,5/8/24,16,Event parking
+fuel,5/11/24,52.25,Regular unleaded gas
+maintenance,5/13/24,175,Air filter and wiper blade replacement
+insurance,5/15/24,185,Monthly insurance premium
+car_payment,5/15/24,375,Monthly car payment
+tolls,5/15/24,10.25,Bridge toll
+fuel,5/17/24,53.75,Premium fuel fill-up
+cleaning,5/20/24,30,Full interior cleaning
+fuel,5/23/24,51.5,Regular unleaded gas
+parking,5/26/24,20,Airport parking
+fuel,5/29/24,55.25,Premium fuel fill-up
+tolls,5/31/24,12.75,Highway tolls
+fuel,6/2/24,52.5,Regular unleaded gas
+maintenance,6/5/24,350,Battery replacement
+cleaning,6/7/24,35,Deluxe wash and wax
+fuel,6/9/24,54.75,Premium fuel fill-up
+tolls,6/12/24,11.25,Expressway tolls
+insurance,6/15/24,185,Monthly insurance premium
+car_payment,6/15/24,375,Monthly car payment
+fuel,6/15/24,52.25,Regular unleaded gas
+parking,6/18/24,15,Downtown parking
+other,6/20/24,75,Floor mats replacement
+fuel,6/21/24,55.5,Premium fuel fill-up
+maintenance,6/24/24,65,Oil change
+fuel,6/27/24,53.25,Regular unleaded gas
+tolls,6/30/24,13.5,Weekend toll charges
+cleaning,7/2/24,20,Basic car wash
+fuel,7/4/24,56.75,Holiday premium fuel fill-up
+parking,7/6/24,25,Event parking for holiday
+fuel,7/9/24,54.25,Regular unleaded gas
+tolls,7/12/24,12.25,Highway tolls
+insurance,7/15/24,185,Monthly insurance premium
+car_payment,7/15/24,375,Monthly car payment
+fuel,7/15/24,55.25,Premium fuel fill-up
+maintenance,7/18/24,225,Tire alignment
+cleaning,7/20/24,40,Full exterior and interior detailing
+fuel,7/21/24,53.75,Regular unleaded gas
+other,7/23/24,30,Air fresheners and cleaning supplies
+fuel,7/25/24,56.5,Premium fuel fill-up
+parking,7/27/24,22,Airport parking
+tolls,7/29/24,14.75,Expressway and bridge tolls
+fuel,7/31/24,55,Regular unleaded gas 

@@ -4,9 +4,9 @@ import { InsertRide, SelectRide, ridesTable } from "../schema/rides-schema";
 
 export const createRide = async (data: InsertRide) => {
   try {
-    console.log("Creating ride in database with data:", JSON.stringify(data));
+    //console.log("Creating ride in database with data:", JSON.stringify(data));
     const [newRide] = await db.insert(ridesTable).values(data).returning();
-    console.log("Successfully created ride:", newRide.id);
+    //console.log("Successfully created ride:", newRide.id);
     return newRide;
   } catch (error) {
     console.error("Error creating ride:", error);

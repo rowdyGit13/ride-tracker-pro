@@ -1,0 +1,9 @@
+expenseType,date,amount,description
+fuel,11/1/23,45.75,Regular fuel fill-up
+maintenance,11/10/23,125.5,Oil change and filter replacement
+insurance,11/15/23,180,Monthly insurance payment
+car_payment,11/1/23,350,Monthly car payment
+cleaning,11/5/23,25,Car wash and interior cleaning
+parking,11/12/23,15,Airport parking
+tolls,11/18/23,8.5,Highway tolls
+other,11/20/23,35,Phone mount and charger 
