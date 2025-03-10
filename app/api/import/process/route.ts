@@ -81,11 +81,26 @@ export async function POST(request: NextRequest) {
         try {
           const record = data[i];
           
+          // Parse and validate the date
+          let sessionDate: Date;
+          try {
+            if (!record.sessionDate) {
+              throw new Error("Session date is required");
+            }
+            sessionDate = new Date(record.sessionDate);
+            if (isNaN(sessionDate.getTime())) {
+              throw new Error("Invalid session date format");
+            }
+          } catch (error) {
+            const dateError = error instanceof Error ? error.message : String(error);
+            throw new Error(`Invalid session date: ${dateError}`);
+          }
+          
           // Create ride data using the selected vehicleId
           const rideData = {
             vehicleId, // Use the selected vehicleId from the form
             rideType: record.rideType || "other",
-            sessionDate: record.sessionDate,
+            sessionDate: sessionDate,
             timeOnline: String(parseFloat(record.timeOnline) || 0),
             timeBooked: String(parseFloat(record.timeBooked) || 0),
             distanceOnline: String(parseFloat(record.distanceOnline) || 0),
@@ -94,7 +109,10 @@ export async function POST(request: NextRequest) {
             notes: record.notes || ""
           };
 
+          console.log("Creating ride with data:", JSON.stringify(rideData));
           const result = await createRideAction(rideData);
+          
+          console.log("Ride creation result:", result);
           if (result.status === "error") {
             results.failed++;
             results.errors.push({
@@ -105,6 +123,7 @@ export async function POST(request: NextRequest) {
             results.success++;
           }
         } catch (error) {
+          console.error("Error creating ride:", error);
           results.failed++;
           results.errors.push({
             row: i,
@@ -118,16 +137,34 @@ export async function POST(request: NextRequest) {
         try {
           const record = data[i];
           
+          // Parse and validate the date
+          let expenseDate: Date;
+          try {
+            if (!record.date) {
+              throw new Error("Date is required");
+            }
+            expenseDate = new Date(record.date);
+            if (isNaN(expenseDate.getTime())) {
+              throw new Error("Invalid date format");
+            }
+          } catch (error) {
+            const dateError = error instanceof Error ? error.message : String(error);
+            throw new Error(`Invalid expense date: ${dateError}`);
+          }
+          
           // Create expense data using the selected vehicleId
           const expenseData = {
             vehicleId, // Use the selected vehicleId from the form
             expenseType: record.expenseType || "other",
-            date: record.date,
+            date: expenseDate,
             amount: String(parseFloat(record.amount) || 0),
             description: record.description || ""
           };
 
+          console.log("Creating expense with data:", JSON.stringify(expenseData));
           const result = await createExpenseAction(expenseData);
+          
+          console.log("Expense creation result:", result);
           if (result.status === "error") {
             results.failed++;
             results.errors.push({
@@ -138,6 +175,7 @@ export async function POST(request: NextRequest) {
             results.success++;
           }
         } catch (error) {
+          console.error("Error creating expense:", error);
           results.failed++;
           results.errors.push({
             row: i,

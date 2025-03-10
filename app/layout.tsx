@@ -21,13 +21,13 @@ const geistMono = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "Ride Tracker Pro | Maximize Your Rideshare Earnings",
+  title: "Ride Tracker Pro",
   description: "The complete solution for rideshare drivers to track earnings, expenses, and optimize performance.",
   keywords: "rideshare, uber, lyft, driver app, earnings tracker, expense tracker, tax deductions",
   authors: [{ name: "Ride Tracker Pro Team" }],
   metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'https://ride-tracker-pro.vercel.app'),
   openGraph: {
-    title: "Ride Tracker Pro | Maximize Your Rideshare Earnings",
+    title: "Ride Tracker Pro",
     description: "The complete solution for rideshare drivers to track earnings, expenses, and optimize performance.",
     url: "https://ridetrackerpro.com",
     siteName: "Ride Tracker Pro",

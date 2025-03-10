@@ -6,20 +6,20 @@ import { parse as csvParse } from "csv-parse/sync";
 // Templates structure for validation - remove vehicleId and vehicles template
 const templates = {
   rides: [
-    "rideType", 
-    "sessionDate", 
-    "timeOnline", 
-    "timeBooked", 
-    "distanceOnline", 
-    "distanceBooked", 
-    "totalAmount", 
-    "notes"
+    "rideType", // Must be one of: "uber", "lyft", "other"
+    "sessionDate", // Date format: YYYY-MM-DD or MM/DD/YYYY
+    "timeOnline", // Numeric value in hours (e.g., 5.5)
+    "timeBooked", // Numeric value in hours (e.g., 4.2)
+    "distanceOnline", // Numeric value in miles (e.g., 120)
+    "distanceBooked", // Numeric value in miles (e.g., 95)
+    "totalAmount", // Numeric value in dollars (e.g., 180.50)
+    "notes" // Optional text
   ],
   expenses: [
-    "expenseType", 
-    "date", 
-    "amount", 
-    "description"
+    "expenseType", // Must be one of: "fuel", "maintenance", "insurance", "car_payment", "cleaning", "parking", "tolls", "other"
+    "date", // Date format: YYYY-MM-DD or MM/DD/YYYY
+    "amount", // Numeric value in dollars (e.g., 45.75)
+    "description" // Optional text
   ]
   // vehicles template removed completely
 };

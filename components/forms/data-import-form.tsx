@@ -56,8 +56,17 @@ type PreviewData = {
 
 // Define CSV templates by type
 const csvTemplates = {
-  rides: "rideType,sessionDate,timeOnline,timeBooked,distanceOnline,distanceBooked,totalAmount,notes",
-  expenses: "expenseType,date,amount,description"
+  rides: `rideType,sessionDate,timeOnline,timeBooked,distanceOnline,distanceBooked,totalAmount,notes
+uber,2023-08-15,5.5,4.2,120,95,180.50,Morning rush hour rides
+lyft,2023-08-16,6.0,5.0,135,110,195.75,Airport trips included
+other,2023-08-17,4.75,3.8,90,75,150.25,Evening short trips
+`,
+  expenses: `expenseType,date,amount,description
+fuel,2023-08-15,45.75,Regular unleaded gas
+maintenance,2023-08-10,120.00,Oil change and tire rotation
+insurance,2023-08-01,185.50,Monthly insurance payment
+parking,2023-08-12,15.00,Airport parking fee
+`
 };
 
 export function DataImportForm() {
@@ -187,7 +196,12 @@ export function DataImportForm() {
     try {
       // Create a FormData object to send the file
       const formData = new FormData();
-      formData.append('file', form.getValues('file'));
+      const file = form.getValues('file');
+      if (!file) {
+        throw new Error('File is missing');
+      }
+      
+      formData.append('file', file);
       formData.append('type', activeImportType);
       formData.append('vehicleId', form.getValues('vehicleId'));
       formData.append('confirm', 'true');
@@ -542,6 +556,107 @@ export function DataImportForm() {
             There was an error importing your data. Please try again or contact support.
           </AlertDescription>
         </Alert>
+      )}
+
+      {activeImportType && (
+        <div className="border rounded-md p-4 mb-6 bg-muted/50">
+          <h3 className="text-lg font-medium mb-2">Data Format Example</h3>
+          <p className="text-sm mb-4">Your CSV or JSON data should follow this format:</p>
+          
+          <div className="overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  {activeImportType === "rides" ? (
+                    <>
+                      <TableHead>rideType</TableHead>
+                      <TableHead>sessionDate</TableHead>
+                      <TableHead>timeOnline</TableHead>
+                      <TableHead>timeBooked</TableHead>
+                      <TableHead>distanceOnline</TableHead>
+                      <TableHead>distanceBooked</TableHead>
+                      <TableHead>totalAmount</TableHead>
+                      <TableHead>notes</TableHead>
+                    </>
+                  ) : (
+                    <>
+                      <TableHead>expenseType</TableHead>
+                      <TableHead>date</TableHead>
+                      <TableHead>amount</TableHead>
+                      <TableHead>description</TableHead>
+                    </>
+                  )}
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {activeImportType === "rides" ? (
+                  <>
+                    <TableRow>
+                      <TableCell>uber</TableCell>
+                      <TableCell>2023-08-15</TableCell>
+                      <TableCell>5.5</TableCell>
+                      <TableCell>4.2</TableCell>
+                      <TableCell>120</TableCell>
+                      <TableCell>95</TableCell>
+                      <TableCell>180.50</TableCell>
+                      <TableCell>Morning rush hour</TableCell>
+                    </TableRow>
+                    <TableRow>
+                      <TableCell>lyft</TableCell>
+                      <TableCell>2023-08-16</TableCell>
+                      <TableCell>6.0</TableCell>
+                      <TableCell>5.0</TableCell>
+                      <TableCell>135</TableCell>
+                      <TableCell>110</TableCell>
+                      <TableCell>195.75</TableCell>
+                      <TableCell>Airport trips</TableCell>
+                    </TableRow>
+                  </>
+                ) : (
+                  <>
+                    <TableRow>
+                      <TableCell>fuel</TableCell>
+                      <TableCell>2023-08-15</TableCell>
+                      <TableCell>45.75</TableCell>
+                      <TableCell>Regular unleaded gas</TableCell>
+                    </TableRow>
+                    <TableRow>
+                      <TableCell>maintenance</TableCell>
+                      <TableCell>2023-08-10</TableCell>
+                      <TableCell>120.00</TableCell>
+                      <TableCell>Oil change and tire rotation</TableCell>
+                    </TableRow>
+                  </>
+                )}
+              </TableBody>
+            </Table>
+          </div>
+
+          <div className="mt-4">
+            <p className="text-sm mb-2">
+              <strong>Notes:</strong>
+            </p>
+            <ul className="text-sm list-disc pl-5 space-y-1">
+              {activeImportType === "rides" ? (
+                <>
+                  <li><strong>rideType</strong>: Must be one of: "uber", "lyft", "other"</li>
+                  <li><strong>sessionDate</strong>: Date format (YYYY-MM-DD)</li>
+                  <li><strong>timeOnline/timeBooked</strong>: Hours as decimal numbers</li>
+                  <li><strong>distanceOnline/distanceBooked</strong>: Miles as numbers</li>
+                  <li><strong>totalAmount</strong>: Dollar amount (e.g., 180.50)</li>
+                  <li><strong>notes</strong>: Optional text field</li>
+                </>
+              ) : (
+                <>
+                  <li><strong>expenseType</strong>: Must be one of: "fuel", "maintenance", "insurance", "car_payment", "cleaning", "parking", "tolls", "other"</li>
+                  <li><strong>date</strong>: Date format (YYYY-MM-DD)</li>
+                  <li><strong>amount</strong>: Dollar amount (e.g., 45.75)</li>
+                  <li><strong>description</strong>: Optional text field</li>
+                </>
+              )}
+            </ul>
+          </div>
+        </div>
       )}
     </div>
   );

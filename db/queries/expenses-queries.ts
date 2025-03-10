@@ -4,7 +4,9 @@ import { InsertExpense, SelectExpense, expensesTable } from "../schema/expenses-
 
 export const createExpense = async (data: InsertExpense) => {
   try {
+    console.log("Creating expense in database with data:", JSON.stringify(data));
     const [newExpense] = await db.insert(expensesTable).values(data).returning();
+    console.log("Successfully created expense:", newExpense.id);
     return newExpense;
   } catch (error) {
     console.error("Error creating expense:", error);
