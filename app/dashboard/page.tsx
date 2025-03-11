@@ -5,19 +5,26 @@ import { DashboardClient } from "@/components/dashboard/dashboard-client";
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 
+
 type Props = {
-  searchParams: { 
+  params?: Promise<{ [key: string]: string | string[] }>;
+  searchParams?: Promise<{ 
     startDate?: string; 
     endDate?: string;
-  };
+  }>;
 };
 
-export default async function DashboardPage({ searchParams }: Props) {
+export default async function DashboardPage({ 
+  searchParams: searchParamsPromise 
+}: Props) {
   const { userId } = await auth();
   
   if (!userId) {
     redirect("/sign-in");
   }
+
+  // Await the searchParams Promise
+  const searchParams = await searchParamsPromise || {};
 
   // Get date range from URL or use defaults
   const startDate = searchParams.startDate ? new Date(searchParams.startDate) : getDefaultStartDate();
