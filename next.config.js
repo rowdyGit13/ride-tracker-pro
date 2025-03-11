@@ -14,7 +14,7 @@ const nextConfig = {
   },
   // Disable the standalone output warning for missing files
   outputFileTracingExcludes: {
-    '*': ['**/node_modules/**', '**/(marketing)/**'],
+    '*': ['**/node_modules/**', '**/marketing/**'],
   },
 };
 

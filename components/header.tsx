@@ -44,7 +44,7 @@ export default function Header() {
                   </Link>
                 </NavigationMenuItem>
                 <NavigationMenuItem>
-                  <Link href="/signup" legacyBehavior passHref>
+                  <Link href="/auth/signup" legacyBehavior passHref>
                     <NavigationMenuLink className={navigationMenuTriggerStyle()}>
                       Sign Up
                     </NavigationMenuLink>
@@ -108,7 +108,7 @@ export default function Header() {
                 Home
               </Link>
               <Link 
-                href="/signup" 
+                href="/auth/signup" 
                 className="font-medium hover:text-primary"
                 onClick={toggleMenu}
               >
