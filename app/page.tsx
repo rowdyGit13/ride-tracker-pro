@@ -30,7 +30,7 @@ export default function Home() {
             <div className="space-y-6">
               <h1 className="text-4xl md:text-6xl font-bold tracking-tight">
                 Your time is valuable. <br />
-                <span className="text-primary">Know your true profit.</span>
+                <span className="text-primary">Know your true profits.</span>
               </h1>
               <p className="text-lg text-muted-foreground max-w-md">
                 Track earnings, expenses, and time so you understand the value earned for your effort.
