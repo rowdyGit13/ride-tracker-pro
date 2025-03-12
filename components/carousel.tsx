@@ -51,29 +51,29 @@ export function Carousel({ images, autoplayInterval = 5000, className }: Carouse
             src={image.src}
             alt={image.alt}
             fill
-            className="object-cover"
+            className="object-contain"
             priority={index === 0}
           />
         </div>
       ))}
 
-      {/* Navigation arrows */}
-      <div className="absolute inset-0 flex items-center justify-between p-4 z-20">
+      {/* Navigation arrows - positioned outside image area */}
+      <div className="absolute inset-0 flex items-center justify-between z-20">
         <Button
           variant="outline"
           size="icon"
-          className="h-8 w-8 rounded-full bg-background/80 backdrop-blur-sm"
+          className="h-10 w-10 rounded-full bg-background/80 backdrop-blur-sm ml-4 shadow-md"
           onClick={goToPrevious}
         >
-          <ChevronLeft className="h-4 w-4" />
+          <ChevronLeft className="h-5 w-5" />
         </Button>
         <Button
           variant="outline"
           size="icon"
-          className="h-8 w-8 rounded-full bg-background/80 backdrop-blur-sm"
+          className="h-10 w-10 rounded-full bg-background/80 backdrop-blur-sm mr-4 shadow-md"
           onClick={goToNext}
         >
-          <ChevronRight className="h-4 w-4" />
+          <ChevronRight className="h-5 w-5" />
         </Button>
       </div>
 

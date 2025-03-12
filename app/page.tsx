@@ -2,21 +2,21 @@ import { ArrowRight, Car, ChartBar, DollarSign } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Carousel } from "@/components/carousel";
-
+import Image from "next/image";
 export default function Home() {
   // Define your carousel images
   const carouselImages = [
     {
       src: "/landing_page_1.png",
-      alt: "Ride Tracker Dashboard"
+      alt: "Earnings"
     },
     {
       src: "/landing_page_2.png",
-      alt: "Earnings Tracking Features"
+      alt: "Expenses"
     },
     {
       src: "/landing_page_3.png",
-      alt: "Expense Management System"
+      alt: "Profits"
     }
   ];
 
@@ -43,9 +43,18 @@ export default function Home() {
                 </Button>
               </div>
             </div>
-            <div className="relative h-[300px] md:h-[400px] shadow-2xl">
+              <div className="col-span-1 md:col-span-2 relative h-[400px] md:h-[500px]">
               <Carousel images={carouselImages} />
-            </div>
+              </div>
+              <div className="col-span-1 md:col-span-2 relative h-[400px] md:h-[500px]">
+              <Image 
+                src="/landing_page_dashboard.png" 
+                alt="Ride Tracker Dashboard" 
+                fill 
+                className="object-contain" 
+                priority
+              />
+              </div>
           </div>
         </div>
       </section>

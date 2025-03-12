@@ -6,7 +6,7 @@ import {
   NavigationMenuItem,
   NavigationMenuLink,
   NavigationMenuList,
-  navigationMenuTriggerStyle
+  navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu";
 import { SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/nextjs";
 import Link from "next/link";
@@ -32,17 +32,18 @@ export default function Header() {
         </div>
 
         {/* Desktop Navigation */}
-        <div className="hidden md:flex md:items-center md:gap-6">
-          <NavigationMenu>
-            <NavigationMenuList>
+        <div className="hidden md:flex md:flex-grow md:justify-end">
+          <NavigationMenu className="!justify-end !max-w-full">
+            <NavigationMenuList className="text-lg !justify-end">
+              <NavigationMenuItem>
+                <Link href="/" legacyBehavior passHref>
+                  <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                    Home
+                  </NavigationMenuLink>
+                </Link>
+              </NavigationMenuItem>
+              
               <SignedOut>
-                <NavigationMenuItem>
-                  <Link href="/" legacyBehavior passHref>
-                    <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                      Home
-                    </NavigationMenuLink>
-                  </Link>
-                </NavigationMenuItem>
                 <NavigationMenuItem>
                   <Link href="/auth/signup" legacyBehavior passHref>
                     <NavigationMenuLink className={navigationMenuTriggerStyle()}>
@@ -71,14 +72,14 @@ export default function Header() {
             </NavigationMenuList>
           </NavigationMenu>
 
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-4 pl-6">
             <ModeToggle />
             <SignedOut>
-              <SignInButton mode="modal">
-                <Button variant="default" size="sm">
+              <Link href="/auth/login">
+                <Button variant="default" size="sm" className="text-base">
                   Sign In
                 </Button>
-              </SignInButton>
+              </Link>
             </SignedOut>
             <SignedIn>
               <UserButton afterSignOutUrl="/" />
@@ -98,15 +99,16 @@ export default function Header() {
       {/* Mobile Navigation Menu */}
       {isMenuOpen && (
         <div className="md:hidden border-t p-4">
-          <nav className="flex flex-col space-y-4">
+          <nav className="flex flex-col space-y-4 text-lg">
+            <Link 
+              href="/" 
+              className="font-medium hover:text-primary"
+              onClick={toggleMenu}
+            >
+              Home
+            </Link>
+            
             <SignedOut>
-              <Link 
-                href="/" 
-                className="font-medium hover:text-primary"
-                onClick={toggleMenu}
-              >
-                Home
-              </Link>
               <Link 
                 href="/auth/signup" 
                 className="font-medium hover:text-primary"
@@ -114,11 +116,11 @@ export default function Header() {
               >
                 Sign Up
               </Link>
-              <SignInButton mode="modal">
-                <Button variant="default" size="sm" className="w-full">
+              <Link href="/auth/login">
+                <Button variant="default" size="sm" className="w-full text-base">
                   Sign In
                 </Button>
-              </SignInButton>
+              </Link>
             </SignedOut>
             
             <SignedIn>
