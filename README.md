@@ -1,37 +1,86 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+## Overview
+
+Ride Tracker Pro helps rideshare drivers understand their true profit by tracking earnings, expenses, and time spent working. The application provides detailed analytics, visualizations, and insights to maximize profitability.
+
+## Features
+
+- **Earnings Tracker:** Log and categorize all earnings with detailed breakdowns by platform, time, and location
+- **Expense Management:** Track gas, maintenance, and other expenses with automatic tax deduction calculations
+- **Performance Analytics:** Visualize performance with intuitive charts to identify opportunities to increase earnings
+- **Multi-platform Support:** Compatible with all major rideshare services
+- **Responsive Design:** Works seamlessly on desktop and mobile devices
+
+## Tech Stack
+
+- **Frontend:** Next.js, React, Tailwind CSS, shadcn/ui
+- **Authentication:** Clerk
+- **State Management:** React hooks
+- **Styling:** Tailwind CSS with custom theming
+- **Deployment:** Vercel
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
+
+- Node.js 18.x or higher
+- npm or yarn
+
+### Installation
 
 ```bash
+# Clone the repository
+git clone https://github.com/yourusername/ride-tracker-pro.git
+
+# Navigate to the project directory
+cd ride-tracker-pro
+
+# Install dependencies
+npm install
+
+# Set up environment variables
+cp .env.example .env.local
+# Edit .env.local with your values
+
+# Start the development server
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Environment Variables
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Create a `.env.local` file in the root directory with the following variables:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```
+NEXT_PUBLIC_APP_URL=http://localhost:3000
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=your_clerk_publishable_key
+CLERK_SECRET_KEY=your_clerk_secret_key
+DATABASE_URL=your_database_url
+```
 
-## Learn More
+## Project Structure
 
-To learn more about Next.js, take a look at the following resources:
+```
+ride-tracker-pro/
+├── actions/           # Server actions for data fetching
+├── app/               # Next.js app directory
+│   ├── auth/          # Authentication pages
+│   ├── dashboard/     # Dashboard views
+│   ├── forms/         # Data entry forms
+├── components/        # Reusable React components
+│   ├── ui/            # UI components
+│   ├── dashboard/     # Dashboard-specific components
+├── public/            # Static assets
+└── lib/               # Utilities and helpers
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Usage
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+After logging in, you can:
 
-## Deploy on Vercel
+1. Record ride earnings and expenses
+2. View dashboard analytics
+3. Track performance metrics over time
+4. Generate reports for tax purposes
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## License
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
-# ride-tracker-pro
+© 2024 Ride Tracker Pro. All rights reserved.
