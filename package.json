@@ -13,6 +13,9 @@
   "engines": {
     "node": "^22"
   },
+  "overrides": {
+    "source-map": "^0.7.4"
+  },
   "dependencies": {
     "@clerk/backend": "^1.24.3",
     "@clerk/nextjs": "^6.12.2",
@@ -66,8 +69,6 @@
     "react-resizable-panels": "^2.1.7",
     "recharts": "^2.15.1",
     "sonner": "^2.0.1",
-    "source-map": "^0.7.4",
-    "source-map-support": "^0.5.21",
     "stripe": "^17.7.0",
     "tailwind-merge": "^3.0.2",
     "tailwindcss-animate": "^1.0.7",
