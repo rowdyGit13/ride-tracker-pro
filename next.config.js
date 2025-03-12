@@ -2,7 +2,8 @@
 
 const nextConfig = {
   // Only use standalone output in non-Vercel environments
-  output: process.env.VERCEL ? undefined : 'standalone',
+  output: 'standalone',
+  // output: process.env.VERCEL ? undefined : 'standalone',
   images: {
     unoptimized: process.env.NODE_ENV !== 'production',
   },
